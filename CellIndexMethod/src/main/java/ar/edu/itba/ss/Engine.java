@@ -42,19 +42,17 @@ public class Engine {
 
     public static void main (String [ ] args) {
 
-        Scanner scan = new Scanner(System.in);
+        Parser parser = new Parser(args[0],args[1]);
 
-        Parser parser = new Parser(args,scan);
+        int L = parser.getL();
 
-        int L = parser.parseL();
+        int N = parser.getN();
 
-        int N = parser.parseN();
+        int M = parser.getM();
 
-        int M = parser.parseM();
+        double Rc = parser.getRc();
 
-        double Rc = parser.parseRc();
-
-        Set<Molecule> molecules = parser.parseMolecules();
+        Set<Molecule> molecules = parser.getMolecules();
 
         Engine engine = new Engine(L,N,M,Rc,molecules);
 

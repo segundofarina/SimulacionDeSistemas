@@ -16,6 +16,13 @@ public class Molecule {
         this.location = location;
         this.velocity = velocity;
     }
+    public Molecule(int id,int ratio, Property<String> property, Point location, Point velocity) {
+        this.id = id;
+        this.ratio = ratio;
+        this.property = property;
+        this.location = location;
+        this.velocity = velocity;
+    }
 
     public int getId() {
         return id;
