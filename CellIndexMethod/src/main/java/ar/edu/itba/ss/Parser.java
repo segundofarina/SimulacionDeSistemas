@@ -35,7 +35,7 @@ public class Parser {
             l = Integer.parseInt(staticBuffer.readLine());
             m = Integer.parseInt(staticBuffer.readLine());
             rc = Double.parseDouble(staticBuffer.readLine());
-            periodic = staticBuffer.readLine().equals("peridic");
+            periodic = staticBuffer.readLine().equals("periodic");
 
             for (int i=0; i<n; i++){
                String[] array= staticBuffer.readLine().split(" ");

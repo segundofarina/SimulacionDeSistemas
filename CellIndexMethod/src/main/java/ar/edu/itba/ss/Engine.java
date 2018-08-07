@@ -77,6 +77,8 @@ public class Engine {
 
         boolean periodic = parser.isPeriodic();
 
+        System.out.println(periodic);
+
         Set<Molecule> molecules = parser.getMolecules();
 
         Engine engine = new Engine(L,N,M,Rc,periodic,molecules);
