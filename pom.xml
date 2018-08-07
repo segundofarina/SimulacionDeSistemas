@@ -6,6 +6,7 @@
   <version>1.0-SNAPSHOT</version>
     <modules>
         <module>CellIndexMethod</module>
+        <module>ui</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>

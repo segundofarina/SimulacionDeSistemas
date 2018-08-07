@@ -113,7 +113,7 @@ public class Grid {
         double my = molecule.getLocation().getY();
         double ox = other.getLocation().getX();
         double oy = other.getLocation().getY();
-        
+
         ans = Point.distanceBetween(new Point(mx,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx+l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx+l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
@@ -121,24 +121,6 @@ public class Grid {
         || Point.distanceBetween(new Point(mx,my), new Point(ox,oy+l)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx,my), new Point(ox+l,oy+l)) - molecule.getRatio() - other.getRatio() <= rc;
 
-
-//        if(mfield.getX() == ofield.getX() && mfield.getY() < ofield.getY() ) {
-//            ans = Point.distanceBetween(new Point(mx,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() == ofield.getX() && mfield.getY() > ofield.getY() ) {
-//            ans = Point.distanceBetween(new Point(mx,my), new Point(ox,oy+l)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() < ofield.getX() && mfield.getY() == ofield.getY()){
-//            ans = Point.distanceBetween(new Point(mx+l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() > ofield.getX() && mfield.getY() == ofield.getY()){
-//            ans = Point.distanceBetween(new Point(mx,my), new Point(ox+l,oy)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() < ofield.getX() && mfield.getY() < ofield.getY()){
-//            ans = Point.distanceBetween(new Point(mx+l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() < ofield.getX() && mfield.getY() > ofield.getY()){
-//            ans = Point.distanceBetween(new Point(mx+l,my), new Point(ox,oy+l)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() > ofield.getX() && mfield.getY() < ofield.getY()){
-//            ans = Point.distanceBetween(new Point(mx,my+l), new Point(ox+l,oy)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }else if(mfield.getX() > ofield.getX() && mfield.getY() > ofield.getY()){
-//            ans = Point.distanceBetween(new Point(mx,my), new Point(ox+l,oy+l)) - molecule.getRatio() - other.getRatio() <= rc;
-//        }
         return ans;
     }
 
