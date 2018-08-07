@@ -110,11 +110,11 @@ public class Grid {
         Point ofield = getField(other.getLocation());
 
         if(mfield.getX() == ofield.getX()) {
-            ans = Point.distanceBetween(mfield, new Point(ofield.getX(), ofield.getY() + l)) - molecule.getRatio() - other.getRatio() <= rc;
+            ans = Point.distanceBetween(molecule.getLocation(), new Point(other.getLocation().getX(), other.getLocation().getY() + l)) - molecule.getRatio() - other.getRatio() <= rc;
         }else if(mfield.getY() == ofield.getY()){
-            ans = Point.distanceBetween(mfield,new Point(ofield.getX()+l,ofield.getY()))-molecule.getRatio()-other.getRatio()<=rc;
+            ans = Point.distanceBetween(molecule.getLocation(),new Point(other.getLocation().getX()+l,other.getLocation().getY()))-molecule.getRatio()-other.getRatio()<=rc;
         }else{
-            ans = Point.distanceBetween(mfield,new Point(ofield.getX()+l,ofield.getY()+l))-molecule.getRatio()-other.getRatio()<=rc;
+            ans = Point.distanceBetween(molecule.getLocation(),new Point(other.getLocation().getX()+l,other.getLocation().getY()+l))-molecule.getRatio()-other.getRatio()<=rc;
         }
         return ans;
     }
