@@ -3,6 +3,7 @@ package ar.edu.itba.ss;
 import java.util.*;
 
 public class Grid {
+    private int l;
     private int m;
     private double rc;
     private double fieldSize;
@@ -10,6 +11,7 @@ public class Grid {
     private boolean periodic;
 
     public Grid(int l, int n, int m, double rc, Set<Molecule> molecules,boolean periodic) {
+        this.l = l;
         this.m = m;
         this.rc = rc;
         this.fieldSize = l/m;
@@ -87,11 +89,33 @@ public class Grid {
         Set<Molecule> ans = new HashSet<>();
 
         for(Molecule other : nearMolecules){
-            if(Molecule.distanceBetweenMolecules(molecule,other)-molecule.getRatio()-other.getRatio()<=rc){
+            if(calculateDistanceBetweenMolecules(molecule,other)){
                 ans.add(other);
             }
         }
 
+        return ans;
+    }
+
+    private boolean calculateDistanceBetweenMolecules(Molecule molecule, Molecule other) {
+
+        boolean ans = Molecule.distanceBetweenMolecules(molecule,other)-molecule.getRatio()-other.getRatio()<=rc;
+        if(ans) {
+            return true;
+        }
+        if(!periodic){
+            return false;
+        }
+        Point mfield = getField(molecule.getLocation());
+        Point ofield = getField(other.getLocation());
+
+        if(mfield.getX() == ofield.getX()) {
+            ans = Point.distanceBetween(mfield, new Point(ofield.getX(), ofield.getY() + l)) - molecule.getRatio() - other.getRatio() <= rc;
+        }else if(mfield.getY() == ofield.getY()){
+            ans = Point.distanceBetween(mfield,new Point(ofield.getX()+l,ofield.getY()))-molecule.getRatio()-other.getRatio()<=rc;
+        }else{
+            ans = Point.distanceBetween(mfield,new Point(ofield.getX()+l,ofield.getY()+l))-molecule.getRatio()-other.getRatio()<=rc;
+        }
         return ans;
     }
 
@@ -108,5 +132,7 @@ public class Grid {
         return map;
     }
 
-
+    public double getRc() {
+        return rc;
+    }
 }

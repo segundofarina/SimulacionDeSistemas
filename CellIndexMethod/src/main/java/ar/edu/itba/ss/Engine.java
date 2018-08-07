@@ -32,7 +32,7 @@ public class Engine {
                         if (neighbors.containsKey(m)) {
                             neighbors.get(m).add(molecule);
                         } else {
-                            HashSet<Molecule> set = new HashSet<Molecule>();
+                            HashSet<Molecule> set = new HashSet<>();
                             set.add(molecule);
                             neighbors.put(m, set);
                         }
@@ -46,6 +46,21 @@ public class Engine {
     public Map<Molecule,Set<Molecule>> start(Set<Molecule> molecules){
             getNeighborsOfMolecule();
         return neighbors;
+    }
+
+    public Map<Molecule,Set<Molecule>> bruteForce(Set<Molecule> molecules){
+        Map<Molecule,Set<Molecule>> ans = new HashMap<>();
+
+        for(Molecule m1: molecules){
+            ans.put(m1,new HashSet<Molecule>());
+            for(Molecule m2 : molecules){
+                if(Molecule.distanceBetweenMolecules(m1,m2)<=grid.getRc()){
+                    ans.get(m1).add(m2);
+                }
+            }
+        }
+
+        return ans;
     }
 
     public static void main (String [ ] args) {
