@@ -19,32 +19,15 @@ public class Board extends Pane{
 		this.dimension = dimension;
 		this.setPrefSize(TABLERO_ANCHO, TABLERO_ALTO);
 		this.moleculeList = moleculeList;
-//		this.setTranslateX(DES_TABLERO_X);
-//		this.setTranslateY(DES_TABLERO_Y);
-		board = new Canvas[moleculeList.size()];
+
+		board = new Canvas[moleculeList.size()+1];
 		img = new StoneImg();
-		showBoard(10000);
-		
-//		this.getStylesheets().add(getClass().getResource("../assets/application.css").toExternalForm());
+		showBoard(-1);
 
 
-		this.setOnMouseClicked( e->{
-			double x=e.getSceneX();
-			double y=e.getSceneY();
 
-			consumeClick(x,y);
-		} );
 	}
 
-	private void consumeClick(double x, double y){
-		for(Molecule molecule : moleculeList){
-			double xPos =(double) molecule.getPosition().x/dimension*500.0;
-			double yPos = (double) molecule.getPosition().y/dimension*500.0;
-			if(x>= xPos - molecule.getRadius()/2 && x<= xPos + molecule.getRadius()/2 && y>= yPos - molecule.getRadius()/2 && y<= yPos + molecule.getRadius()/2){
-				showBoard(molecule.getId());
-			}
-		}
-	}
 
 
 	public void showBoard(int selected) {
@@ -64,6 +47,13 @@ public class Board extends Pane{
 		board[molecule.getId()]=new Canvas(casilleroAncho,casilleroAlto);
 		board[molecule.getId()].setTranslateX((double) molecule.getPosition().x/dimension*500.0);
 		board[molecule.getId()].setTranslateY((double) molecule.getPosition().y/dimension*500.0);
+		board[molecule.getId()].setOnMouseClicked(e->{
+			double x=e.getSceneX();
+			double y=e.getSceneY();
+			System.out.println("clicked on "+x+" "+y);
+			//consumeClick(x,y);
+			showBoard(molecule.getId());
+		} );
 
 		this.getChildren().add(board[molecule.getId()]);
 		Image img;

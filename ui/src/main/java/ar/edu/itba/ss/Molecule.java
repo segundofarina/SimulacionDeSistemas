@@ -14,7 +14,7 @@ public class Molecule {
         return radius;
     }
 
-    public Molecule(Point position, int id,int radius, List<Integer> neighbours) {
+    public Molecule(Point position, int id,double radius, List<Integer> neighbours) {
         this.position = position;
         this.id = id;
         this.neighbours = neighbours;
