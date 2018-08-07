@@ -1,16 +1,12 @@
-11
+7
 12
-3
+4
 3
 periodic
-1 pr1 
-1 pr2
-1 pr3 
-1 pr4
-1 pr5 
-1 pr6
-1 pr7 
-1 pr8
-1 pr9 
-1 pr10
-1 pr11
+0 pr1
+0 pr2
+0 pr3
+0 pr4
+0 pr5
+0 pr6
+0 pr7
