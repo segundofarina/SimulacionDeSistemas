@@ -139,7 +139,7 @@ public class Grid {
             if (mfield.getY() < ofield.getY()) {
                 ans = Point.distanceBetween(new Point(other.getLocation().getX()+l, other.getLocation().getY()), new Point(molecule.getLocation().getX(), molecule.getLocation().getY() + l)) - molecule.getRatio() - other.getRatio() <= rc;
             }else{
-                ans = Point.distanceBetween(new Point(molecule.getLocation().getX(), molecule.getLocation().getY()+l), new Point(other.getLocation().getX()+l, other.getLocation().getY())) - molecule.getRatio() - other.getRatio() <= rc;
+                ans = Point.distanceBetween(new Point(molecule.getLocation().getX(), molecule.getLocation().getY()), new Point(other.getLocation().getX()+l, other.getLocation().getY()+l)) - molecule.getRatio() - other.getRatio() <= rc;
             }
         }
         return ans;
