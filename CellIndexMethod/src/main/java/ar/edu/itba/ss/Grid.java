@@ -7,12 +7,14 @@ public class Grid {
     private double rc;
     private double fieldSize;
     private HashMap<Point,Set<Molecule>> grid;
+    private boolean periodic;
 
-    public Grid(int l, int n, int m, double rc, Set<Molecule> molecules) {
+    public Grid(int l, int n, int m, double rc, Set<Molecule> molecules,boolean periodic) {
         this.m = m;
         this.rc = rc;
         this.fieldSize = l/m;
         this.grid = new HashMap<>();
+        this.periodic = periodic;
 
         for(int i = 0; i < m ; i++){
             for(int j = 0 ; j < m ; j++) {
@@ -22,7 +24,6 @@ public class Grid {
 
         for(Molecule molecule : molecules){
             Point j = getField(molecule.getLocation());
-            //System.out.println("Id: "+molecule.getId()+" Field:"+j);
             grid.get(j).add(molecule);
         }
 
@@ -37,15 +38,33 @@ public class Grid {
 
     public Set<Molecule> getMoleculesInCell(int x , int y){
         if(x < 0){
-            return getMoleculesInCell(x+m,y);
+            if(periodic){
+                return getMoleculesInCell(x+m,y);
+            }else{
+                return Collections.EMPTY_SET;
+            }
+
         } if(x >= m){
-            return getMoleculesInCell(x-m,y);
+            if(periodic){
+                return getMoleculesInCell(x-m,y);
+            }else{
+                return Collections.EMPTY_SET;
+            }
         }
         if (y <0){
-            return getMoleculesInCell(x,y+m);
+            if(periodic){
+                return getMoleculesInCell(x,y+m);
+            }else{
+                return Collections.EMPTY_SET;
+            }
         }
         if( y>=m){
-            return getMoleculesInCell(x,y-m);
+            if(periodic){
+                return getMoleculesInCell(x,y-m);
+            }else{
+                return Collections.EMPTY_SET;
+            }
+
         }
         return grid.get(new Point(x,y));
     }
@@ -60,19 +79,33 @@ public class Grid {
         return nearMolecules;
     }
 
-    public Set<Molecule> getNeighborsOfMolecule(Molecule molecule){
+    public Set<Molecule> getNeighborsOfMolecule(Molecule molecule, Set<Molecule> analyzed){
         final Point filed = getField(molecule.getLocation());
         Set<Molecule> nearMolecules = getNearMolecules(filed);
         nearMolecules.remove(molecule);
+        nearMolecules.removeAll(analyzed);
         Set<Molecule> ans = new HashSet<>();
 
         for(Molecule other : nearMolecules){
-            if(Molecule.distanceBetweenMolecules(molecule,other)<=rc){
+            if(Molecule.distanceBetweenMolecules(molecule,other)-molecule.getRatio()-other.getRatio()<=rc){
                 ans.add(other);
             }
         }
 
         return ans;
+    }
+
+    public Map<Molecule,Set<Molecule>> analyzeCell(Point cell){
+        Set<Molecule> molecules = grid.get(cell);
+        Set<Molecule> analyzed = new HashSet<>();
+        Map<Molecule,Set<Molecule>> map = new HashMap<>();
+
+        for(Molecule molecule : molecules){
+            Set<Molecule> neighbors =getNeighborsOfMolecule(molecule,analyzed);
+            analyzed.add(molecule);
+            map.put(molecule,neighbors);
+        }
+        return map;
     }
 
 

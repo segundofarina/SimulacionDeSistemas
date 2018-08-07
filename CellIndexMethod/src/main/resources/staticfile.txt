@@ -2,6 +2,7 @@
 12
 3
 3
+periodic
 1 pr1 
 1 pr2
 1 pr3 

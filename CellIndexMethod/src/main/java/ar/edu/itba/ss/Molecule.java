@@ -3,12 +3,12 @@ package ar.edu.itba.ss;
 public class Molecule {
     private static int quantity = 0;
     private int id;
-    private int ratio;
+    private double ratio;
     private Property<String> property;
     private Point location;
     private Point velocity;
 
-    public Molecule(int ratio, Property<String> property, Point location, Point velocity) {
+    public Molecule(double ratio, Property<String> property, Point location, Point velocity) {
         quantity++;
         this.id = quantity;
         this.ratio = ratio;
@@ -16,7 +16,7 @@ public class Molecule {
         this.location = location;
         this.velocity = velocity;
     }
-    public Molecule(int id,int ratio, Property<String> property, Point location, Point velocity) {
+    public Molecule(int id,double ratio, Property<String> property, Point location, Point velocity) {
         this.id = id;
         this.ratio = ratio;
         this.property = property;
@@ -28,7 +28,7 @@ public class Molecule {
         return id;
     }
 
-    public int getRatio() {
+    public double getRatio() {
         return ratio;
     }
 

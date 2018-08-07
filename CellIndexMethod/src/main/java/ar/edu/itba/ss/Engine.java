@@ -7,36 +7,44 @@ public class Engine {
     private Grid grid;
 
     private Map<Molecule,Set<Molecule>> neighbors;
+    int m;
 
-    public Engine(int l, int n, int m, double rc, Set<Molecule> molecules) {
-        grid = new Grid(l,n,m,rc,molecules);
+    public Engine(int l, int n, int m, double rc,boolean periodic, Set<Molecule> molecules) {
+        this.m=m;
+        grid = new Grid(l,n,m,rc,molecules,periodic);
         neighbors = new HashMap<>();
     }
 
-    public void getNeighborsOfMolecule(Molecule molecule){
-        Set<Molecule> ans = grid.getNeighborsOfMolecule(molecule);
+    public void getNeighborsOfMolecule(){
+        for(int i=0;i<m;i++){
+            for(int j=0 ; j<m ;j++){
+                Map<Molecule,Set<Molecule>> map = grid.analyzeCell(new Point(i,j));
+                for(Molecule molecule : map.keySet()) {
 
-        if(neighbors.containsKey(molecule)){
-            neighbors.get(molecule).addAll(ans);
-        }else{
-            neighbors.put(molecule,ans);
-        }
 
-        for(Molecule m : ans){
-            if(neighbors.containsKey(m)){
-                neighbors.get(m).add(molecule);
-            }else{
-                HashSet<Molecule> set = new HashSet<Molecule>();
-                set.add(molecule);
-                neighbors.put(m,set);
+                    if (neighbors.containsKey(molecule)) {
+                        neighbors.get(molecule).addAll(map.get(molecule));
+                    } else {
+                        neighbors.put(molecule, map.get(molecule));
+                    }
+
+                    for (Molecule m : map.get(molecule)) {
+                        if (neighbors.containsKey(m)) {
+                            neighbors.get(m).add(molecule);
+                        } else {
+                            HashSet<Molecule> set = new HashSet<Molecule>();
+                            set.add(molecule);
+                            neighbors.put(m, set);
+                        }
+                    }
+                }
             }
         }
+
     }
 
     public Map<Molecule,Set<Molecule>> start(Set<Molecule> molecules){
-        for(Molecule m: molecules){
-            getNeighborsOfMolecule(m);
-        }
+            getNeighborsOfMolecule();
         return neighbors;
     }
 
@@ -52,27 +60,12 @@ public class Engine {
 
         double Rc = parser.getRc();
 
+        boolean periodic = parser.isPeriodic();
+
         Set<Molecule> molecules = parser.getMolecules();
 
-        Engine engine = new Engine(L,N,M,Rc,molecules);
+        Engine engine = new Engine(L,N,M,Rc,periodic,molecules);
 
-//            Set<Molecule> molecules = new HashSet<>();
-//
-//            Molecule molecule1 = new Molecule(1,null,new Point(1,2),null);
-//            molecules.add(molecule1);
-//            molecules.add(new Molecule(1,null,new Point(1,5),null));
-//            molecules.add(new Molecule(1,null,new Point(1,11),null));
-//            molecules.add(new Molecule(1,null,new Point(4,5),null));
-//            molecules.add(new Molecule(1,null,new Point(5,9),null));
-//            molecules.add(new Molecule(1,null,new Point(6,0),null));
-//            molecules.add(new Molecule(1,null,new Point(6,7),null));
-//            molecules.add(new Molecule(1,null,new Point(8,9),null));
-//            molecules.add(new Molecule(1,null,new Point(9,2),null));
-//            molecules.add(new Molecule(1,null,new Point(9,5),null));
-//            molecules.add(new Molecule(1,null,new Point(10,8),null));
-//
-//            Engine engine = new Engine(12,11,3,3,molecules);
-//
         Map<Molecule,Set<Molecule>> ans = engine.start(molecules);
 
         for(Map.Entry<Molecule,Set<Molecule>> a : ans.entrySet()){

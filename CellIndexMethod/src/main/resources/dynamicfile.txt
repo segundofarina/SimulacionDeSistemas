@@ -1,10 +1,27 @@
 t0
-1 1 0 0
+1 2 0 0
+1 5 0 0
+1 11 0 0
 4 5 0 0
+5 9 0 0
 6 0 0 0
 6 7 0 0
 8 9 0 0
 9 2 0 0
 9 5 0 0
 10 8 0 0
+
+
+ Molecule molecule1 = new Molecule(1,null,new Point(1,2),null);
+//            molecules.add(molecule1);
+//            molecules.add(new Molecule(1,null,new Point(1,5),null));
+//            molecules.add(new Molecule(1,null,new Point(1,11),null));
+//            molecules.add(new Molecule(1,null,new Point(4,5),null));
+//            molecules.add(new Molecule(1,null,new Point(5,9),null));
+//            molecules.add(new Molecule(1,null,new Point(6,0),null));
+//            molecules.add(new Molecule(1,null,new Point(6,7),null));
+//            molecules.add(new Molecule(1,null,new Point(8,9),null));
+//            molecules.add(new Molecule(1,null,new Point(9,2),null));
+//            molecules.add(new Molecule(1,null,new Point(9,5),null));
+//            molecules.add(new Molecule(1,null,new Point(10,8),null));
 
