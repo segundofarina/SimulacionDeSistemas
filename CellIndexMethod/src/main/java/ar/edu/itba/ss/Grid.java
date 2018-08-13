@@ -81,16 +81,18 @@ public class Grid {
         return nearMolecules;
     }
 
-    public Set<Molecule> getNeighborsOfMolecule(Molecule molecule, Set<Molecule> analyzed){
+    public Set<Molecule> getNeighborsOfMolecule(Molecule molecule, Set<Molecule> analyzed, Set<Molecule> nearMolecules){
         final Point filed = getField(molecule.getLocation());
-        Set<Molecule> nearMolecules = getNearMolecules(filed);
-        nearMolecules.remove(molecule);
-        nearMolecules.removeAll(analyzed);
+        //Set<Molecule> nearMolecules = getNearMolecules(filed);
+        //nearMolecules.remove(molecule);
+        //nearMolecules.removeAll(analyzed);
         Set<Molecule> ans = new HashSet<>();
 
         for(Molecule other : nearMolecules){
-            if(calculateDistanceBetweenMolecules(molecule,other)){
-                ans.add(other);
+            if(!other.equals(molecule) && !analyzed.contains(other)) {
+                if(calculateDistanceBetweenMolecules(molecule,other)){
+                    ans.add(other);
+                }
             }
         }
 
@@ -99,8 +101,7 @@ public class Grid {
 
     private boolean calculateDistanceBetweenMolecules(Molecule molecule, Molecule other) {
 
-        boolean ans = Molecule.distanceBetweenMolecules(molecule,other)-molecule.getRatio()-other.getRatio()<=rc;
-        if(ans) {
+        if(Molecule.distanceBetweenMolecules(molecule,other)-molecule.getRatio()-other.getRatio()<=rc) {
             return true;
         }
         if(!periodic){
@@ -112,23 +113,26 @@ public class Grid {
         double ox = other.getLocation().getX();
         double oy = other.getLocation().getY();
 
-        ans = Point.distanceBetween(new Point(mx,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        return Point.distanceBetween(new Point(mx,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx+l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx+l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
-        || Point.distanceBetween(new Point(mx,my), new Point(ox+l,oy)) - molecule.getRatio() - other.getRatio() <= rc
-        || Point.distanceBetween(new Point(mx,my), new Point(ox,oy+l)) - molecule.getRatio() - other.getRatio() <= rc
-        || Point.distanceBetween(new Point(mx,my), new Point(ox+l,oy+l)) - molecule.getRatio() - other.getRatio() <= rc;
-
-        return ans;
+        || Point.distanceBetween(new Point(mx+l,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
+        //|| Point.distanceBetween(new Point(mx,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        //|| Point.distanceBetween(new Point(mx-l,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        //|| Point.distanceBetween(new Point(mx-l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        //|| Point.distanceBetween(new Point(mx-l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
     }
 
     public Map<Molecule,Set<Molecule>> analyzeCell(Point cell){
         Set<Molecule> molecules = grid.get(cell);
+        Set<Molecule> nearCellMolecules = getNearMolecules(cell);
+
         Set<Molecule> analyzed = new HashSet<>();
         Map<Molecule,Set<Molecule>> map = new HashMap<>();
 
         for(Molecule molecule : molecules){
-            Set<Molecule> neighbors =getNeighborsOfMolecule(molecule,analyzed);
+            Set<Molecule> neighbors = getNeighborsOfMolecule(molecule,analyzed, nearCellMolecules);
+
             analyzed.add(molecule);
             map.put(molecule,neighbors);
         }
