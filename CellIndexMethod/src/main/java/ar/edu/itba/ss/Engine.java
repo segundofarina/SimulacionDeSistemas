@@ -100,6 +100,11 @@ public class Engine {
         return ans;
     }
 
+
+    //Sample in parameters
+//    /Users/segundofarina/TP/TP-SS/TP/CellIndexMethod/target/classes/staticfile.txt
+//    /Users/segundofarina/TP/TP-SS/TP/CellIndexMethod/target/classes/dynamicfile.txt
+//    /Users/segundofarina/TP/TP-SS/out
     public static void main (String [ ] args) {
 
         Parser parser = new Parser(args[0],args[1]);
@@ -124,7 +129,7 @@ public class Engine {
 
         for(Molecule molecule :ans.keySet()){
             String toWrite = generateFileString(molecule,ans.get(molecule),molecules);
-            writeToFile(toWrite,molecule.getId(),"/Users/segundofarina/TP/TP-SS/out");
+            writeToFile(toWrite,molecule.getId(),args[2]);
         }
 
         for(Map.Entry<Molecule,Set<Molecule>> a : ans.entrySet()){
