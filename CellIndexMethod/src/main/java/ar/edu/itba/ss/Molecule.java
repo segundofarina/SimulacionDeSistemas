@@ -44,6 +44,10 @@ public class Molecule {
     public String toString() {
         return "Molecule{" +
                 "id=" + id +
+                ", ratio=" + ratio +
+                ", property=" + property +
+                ", location=" + location +
+                ", velocity=" + velocity +
                 '}';
     }
 }

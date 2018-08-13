@@ -3,6 +3,7 @@ package ar.edu.itba.ss;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.sql.Time;
 import java.util.*;
 
 public class Engine {
@@ -125,7 +126,12 @@ public class Engine {
 
         Engine engine = new Engine(L,N,M,Rc,periodic,molecules);
 
+        long start = System.currentTimeMillis();
         Map<Molecule,Set<Molecule>> ans = engine.start(molecules);
+        //Map<Molecule,Set<Molecule>> ans = engine.bruteForce(molecules);
+        long end = System.currentTimeMillis();
+
+        System.out.println(end-start);
 
         for(Molecule molecule :ans.keySet()){
             String toWrite = generateFileString(molecule,ans.get(molecule),molecules);

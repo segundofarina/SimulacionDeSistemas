@@ -39,7 +39,7 @@ public class Parser {
 
             for (int i=0; i<n; i++){
                String[] array= staticBuffer.readLine().split(" ");
-               molecules.add(new Molecule(Double.parseDouble(array[0]),new Property<String>(array[1]),null,null));
+               molecules.add(new Molecule(Double.parseDouble(array[0]),new Property<String>("property"),null,null));
             }
             staticBuffer.close();
 
