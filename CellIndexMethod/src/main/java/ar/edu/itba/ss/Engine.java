@@ -1,5 +1,8 @@
 package ar.edu.itba.ss;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class Engine {
@@ -48,6 +51,40 @@ public class Engine {
         return neighbors;
     }
 
+    private static void writeToFile(String data, int inedx, String path){
+        try {
+            Files.write(Paths.get(path + "/results" + inedx + ".txt"), data.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static String generateFileString(Molecule molecule, Set<Molecule> neighbours,Set<Molecule> allMolcules){
+        StringBuilder builder = new StringBuilder()
+                .append(allMolcules.size())
+                .append("\r\n")
+                .append("//ID\t X\t Y\t Radius\t R\t G\t B\t\r\n");
+        for(Molecule current: allMolcules){
+            builder.append(current.getId())
+                    .append(" ")
+                    .append(current.getLocation().getX())
+                    .append(" ")
+                    .append(current.getLocation().getY())
+                    .append(" ")
+                    .append(current.getRatio())
+                    .append(" ");
+            if(molecule.getId() == current.getId()){
+                builder.append("1 0 0\r\n");
+            }else if(neighbours.contains(current)){
+                builder.append("0 1 0\r\n");
+            }else{
+                builder.append("1 1 1\r\n");
+            }
+        }
+        return builder.toString();
+    }
+
     public Map<Molecule,Set<Molecule>> bruteForce(Set<Molecule> molecules){
         Map<Molecule,Set<Molecule>> ans = new HashMap<>();
 
@@ -84,6 +121,11 @@ public class Engine {
         Engine engine = new Engine(L,N,M,Rc,periodic,molecules);
 
         Map<Molecule,Set<Molecule>> ans = engine.start(molecules);
+
+        for(Molecule molecule :ans.keySet()){
+            String toWrite = generateFileString(molecule,ans.get(molecule),molecules);
+            writeToFile(toWrite,molecule.getId(),"/Users/segundofarina/TP/TP-SS/out");
+        }
 
         for(Map.Entry<Molecule,Set<Molecule>> a : ans.entrySet()){
 

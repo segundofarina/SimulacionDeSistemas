@@ -3,10 +3,10 @@
 4
 3
 periodic
-0 pr1
-0 pr2
-0 pr3
-0 pr4
-0 pr5
-0 pr6
-0 pr7
+0.5 pr1
+0.5 pr2
+0.5 pr3
+0.5 pr4
+0.5 pr5
+0.5 pr6
+0.5 pr7

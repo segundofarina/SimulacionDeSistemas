@@ -106,8 +106,6 @@ public class Grid {
         if(!periodic){
             return false;
         }
-        Point mfield = getField(molecule.getLocation());
-        Point ofield = getField(other.getLocation());
 
         double mx = molecule.getLocation().getX();
         double my = molecule.getLocation().getY();
