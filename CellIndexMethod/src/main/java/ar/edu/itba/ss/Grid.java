@@ -116,11 +116,11 @@ public class Grid {
         return Point.distanceBetween(new Point(mx,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx+l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
         || Point.distanceBetween(new Point(mx+l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
-        || Point.distanceBetween(new Point(mx+l,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
-        //|| Point.distanceBetween(new Point(mx,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
-        //|| Point.distanceBetween(new Point(mx-l,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
-        //|| Point.distanceBetween(new Point(mx-l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
-        //|| Point.distanceBetween(new Point(mx-l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
+        || Point.distanceBetween(new Point(mx+l,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        || Point.distanceBetween(new Point(mx,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        || Point.distanceBetween(new Point(mx-l,my-l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        || Point.distanceBetween(new Point(mx-l,my), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc
+        || Point.distanceBetween(new Point(mx-l,my+l), new Point(ox,oy)) - molecule.getRatio() - other.getRatio() <= rc;
     }
 
     public Map<Molecule,Set<Molecule>> analyzeCell(Point cell){

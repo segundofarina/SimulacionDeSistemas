@@ -105,6 +105,8 @@ public class Engine {
 //    /Users/segundofarina/TP/TP-SS/TP/CellIndexMethod/target/classes/staticfile.txt
 //    /Users/segundofarina/TP/TP-SS/TP/CellIndexMethod/target/classes/dynamicfile.txt
 //    /Users/segundofarina/TP/TP-SS/out
+
+    // /Users/martin/Documents/ITBA/SimulacionDeSistemas/TP1/SimulacionDeSistemas/CellIndexMethod/target/classes/staticfile.txt /Users/martin/Documents/ITBA/SimulacionDeSistemas/TP1/SimulacionDeSistemas/CellIndexMethod/target/classes/dynamicfile.txt /Users/martin/Documents/ITBA/SimulacionDeSistemas/TP1/SimulacionDeSistemas/out
     public static void main (String [ ] args) {
 
         Parser parser = new Parser(args[0],args[1]);
