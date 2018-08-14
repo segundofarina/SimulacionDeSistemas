@@ -47,12 +47,12 @@ public class Engine {
 
     }
 
-    public Map<Molecule,Set<Molecule>> start(Set<Molecule> molecules){
+    public Map<Molecule,Set<Molecule>> start(){
             getNeighborsOfMolecule();
         return neighbors;
     }
 
-    private static void writeToFile(String data, int inedx, String path){
+    public static void writeToFile(String data, int inedx, String path){
         try {
             Files.write(Paths.get(path + "/results" + inedx + ".txt"), data.getBytes());
         } catch (IOException e) {
@@ -61,7 +61,7 @@ public class Engine {
     }
 
 
-    private static String generateFileString(Molecule molecule, Set<Molecule> neighbours,Set<Molecule> allMolcules){
+    public static String generateFileString(Molecule molecule, Set<Molecule> neighbours,Set<Molecule> allMolcules){
         StringBuilder builder = new StringBuilder()
                 .append(allMolcules.size())
                 .append("\r\n")
@@ -102,53 +102,5 @@ public class Engine {
     }
 
 
-    //Sample in parameters
-//    /Users/segundofarina/TP/TP-SS/TP/CellIndexMethod/target/classes/staticfile.txt
-//    /Users/segundofarina/TP/TP-SS/TP/CellIndexMethod/target/classes/dynamicfile.txt
-//    /Users/segundofarina/TP/TP-SS/out
 
-    // /Users/martin/Documents/ITBA/SimulacionDeSistemas/TP1/SimulacionDeSistemas/CellIndexMethod/target/classes/staticfile.txt /Users/martin/Documents/ITBA/SimulacionDeSistemas/TP1/SimulacionDeSistemas/CellIndexMethod/target/classes/dynamicfile.txt /Users/martin/Documents/ITBA/SimulacionDeSistemas/TP1/SimulacionDeSistemas/out
-    public static void main (String [ ] args) {
-
-        Parser parser = new Parser(args[0],args[1]);
-
-        int L = parser.getL();
-
-        int N = parser.getN();
-
-        int M = parser.getM();
-
-        double Rc = parser.getRc();
-
-        boolean periodic = parser.isPeriodic();
-
-        System.out.println(periodic);
-
-        Set<Molecule> molecules = parser.getMolecules();
-
-        Engine engine = new Engine(L,N,M,Rc,periodic,molecules);
-
-        long start = System.currentTimeMillis();
-        Map<Molecule,Set<Molecule>> ans = engine.start(molecules);
-        //Map<Molecule,Set<Molecule>> ans = engine.bruteForce(molecules);
-        long end = System.currentTimeMillis();
-
-        System.out.println(end-start);
-
-        for(Molecule molecule :ans.keySet()){
-            String toWrite = generateFileString(molecule,ans.get(molecule),molecules);
-            writeToFile(toWrite,molecule.getId(),args[2]);
-        }
-
-        for(Map.Entry<Molecule,Set<Molecule>> a : ans.entrySet()){
-
-            System.out.print(a.getKey().getId()+" : ");
-
-            for(Molecule m: a.getValue()){
-                System.out.print(m.getId()+" ");
-            }
-
-            System.out.println();
-        }
-    }
 }

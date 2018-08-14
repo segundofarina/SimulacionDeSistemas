@@ -7,6 +7,7 @@
     <modules>
         <module>CellIndexMethod</module>
         <module>ui</module>
+        <module>OffLattice</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>

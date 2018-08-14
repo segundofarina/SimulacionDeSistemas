@@ -14,7 +14,7 @@ public class Grid {
         this.l = l;
         this.m = m;
         this.rc = rc;
-        this.fieldSize = l/m;
+        this.fieldSize = (double)l/m;
         this.grid = new HashMap<>();
         this.periodic = periodic;
 
@@ -26,15 +26,7 @@ public class Grid {
 
         for(Molecule molecule : molecules){
             Point j = getField(molecule.getLocation());
-            try{
-
                 grid.get(j).add(molecule);
-
-            } catch (Exception e) {
-                System.out.println(molecule);
-                System.out.println(j);
-
-            }
         }
 
     }
@@ -42,7 +34,6 @@ public class Grid {
     private Point getField(Point location){
         int x = (int)(location.getX()/fieldSize);
         int y = (int)(location.getY()/fieldSize);
-
         return new Point(x,y);
     }
 
