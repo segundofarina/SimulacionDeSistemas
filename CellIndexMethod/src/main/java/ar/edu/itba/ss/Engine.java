@@ -92,7 +92,7 @@ public class Engine {
         for(Molecule m1: molecules){
             ans.put(m1,new HashSet<Molecule>());
             for(Molecule m2 : molecules){
-                if(Molecule.distanceBetweenMolecules(m1,m2)<=grid.getRc()){
+                if(Molecule.distanceBetweenMolecules(m1,m2)-m1.getRatio()-m2.getRatio()<=grid.getRc()){
                     ans.get(m1).add(m2);
                 }
             }

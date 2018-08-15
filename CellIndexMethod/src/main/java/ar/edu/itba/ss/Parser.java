@@ -39,7 +39,7 @@ public class Parser {
 
             for (int i=0; i<n; i++){
                String[] array= staticBuffer.readLine().split(" ");
-               molecules.add(new Molecule(Double.parseDouble(array[0]),new Property<String>("property"),null,null));
+               molecules.add(new Molecule(Double.parseDouble(array[0]),new Property<String>("property"),null,0,0));
             }
             staticBuffer.close();
 
@@ -47,7 +47,7 @@ public class Parser {
             e.printStackTrace();
         }
 
-        System.out.println("N:"+n+" L:"+l+" m:"+m+" rc:"+rc);
+        //System.out.println("N:"+n+" L:"+l+" m:"+m+" rc:"+rc);
 
 
     }
@@ -77,16 +77,17 @@ public class Parser {
                 String line = dynamicBuffer.readLine();
                 String[] data = line.split(" ");
                 Molecule current = molecules.get(i);
-                double x,y,vx,vy;
+                double x,y,v,angle;
                 x=Double.parseDouble(data[0]);
                 y=Double.parseDouble(data[1]);
-                vx=Double.parseDouble(data[2]);
-                vy=Double.parseDouble(data[3]);
-                response.add(new Molecule(current.getId(),current.getRatio(),null,new Point(x,y), new Point(vx,vy)));
+                v=Double.parseDouble(data[2]);
+                angle=Double.parseDouble(data[3]);
+                response.add(new Molecule(current.getId(),current.getRatio(),null,new Point(x,y),v,angle));
             }
         }catch (IOException e){
             e.printStackTrace();
         }
+        //System.out.println(response);
         return response;
     }
 

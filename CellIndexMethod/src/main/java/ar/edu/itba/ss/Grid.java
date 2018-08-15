@@ -26,7 +26,12 @@ public class Grid {
 
         for(Molecule molecule : molecules){
             Point j = getField(molecule.getLocation());
+            try {
                 grid.get(j).add(molecule);
+            }catch (Exception e){
+                System.out.println(j + " " +molecule);
+            }
+
         }
 
     }
