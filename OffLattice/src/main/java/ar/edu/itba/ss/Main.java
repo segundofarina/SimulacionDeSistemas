@@ -10,60 +10,152 @@ import java.util.Set;
 
 public class Main {
     public static void main(String [ ] args){
-        System.out.println("Iteration\t0.0\t0.5\t1.0\t1.5\t2.0\t2.5\t3.0\t3.5\t4.0\t4.5\t5.0\t");
-        for(int iteration=0 ; iteration<20;iteration++) {
-            System.out.println();
-            System.out.print(iteration+"\t");
-            Parser parser = new Parser(args[0], args[1]);
-
-            int L = parser.getL();
-            int N = parser.getN();
-            int M = parser.getM();
-            double Rc = parser.getRc();
-            boolean periodic = parser.isPeriodic();
-            //double noise = 3;
-
-            Set<Molecule> molecules = parser.getMolecules();
-
-            Engine engine = new Engine(L, N, M, Rc, periodic, molecules);
-            Map<Molecule, Set<Molecule>> moleculesNeighbours = engine.start();
-
-            for (double noise = 0; noise <= 5; noise += 0.5) {
-                final int maxT = 2000;
-                long start = System.currentTimeMillis();
-                boolean done = false;
-                double va = 0;
-                for (int i = 0; i < maxT && !done; i++) {
-
-                    Set<Molecule> newMolecules = new HashSet<>();
-
-                    for (Molecule m : moleculesNeighbours.keySet()) {
-                        double newAngle = getAngleFromNeighbours(m, moleculesNeighbours.get(m), noise);
-                        Point newLocation = getLocationFromAngle(m, newAngle, L);
-                        Molecule newMolecule = new Molecule(m.getId(), m.getRatio(), null, newLocation, m.getVelocity(), newAngle);
-                        newMolecules.add(newMolecule);
-                    }
-
-                    //System.out.println(getVa(newMolecules, N));
-                    va = getVa(newMolecules);
-
-
-                    engine = new Engine(L, N, M, Rc, periodic, newMolecules);
-                    moleculesNeighbours = engine.start();
-//                    String fileString = generateFileString(newMolecules);
-//                    writeToFile(fileString, i, args[2]);
-
-//            if(va > 0.999) {
-//                done = true;
-//            }
-                }
-                long end = System.currentTimeMillis();
-                System.out.print( va+"\t");
-
-                //System.out.print(" time: " + (end - start) + "ms.");
-            }
+//        for(int iteration=1;iteration<=200;iteration++) {
+//        //System.out.println("Iteration\t0.0\t0.5\t1.0\t1.5\t2.0\t2.5\t3.0\t3.5\t4.0\t4.5\t5.0\t");
+//            //System.out.println();
+//            System.out.print(iteration+"\t");
+//            startSimulationForResults(20,50,0.2);
+//        }
+        startRandomSimulation(7,100,0.2,args[2]);
         }
 
+        public static void startSimulationForResults(int L, int N, double noise){
+        int M = L;
+        int Rc = 1;
+            Set<Molecule> molecules = randomMolecules(L,N);
+
+
+            Engine engine = new Engine(L, N, M, Rc, true, molecules);
+            Map<Molecule, Set<Molecule>> moleculesNeighbours = engine.start();
+
+            final int maxT = 2000;
+            long start = System.currentTimeMillis();
+            boolean done = false;
+            double va = 0;
+            for (int i = 0; i < maxT && !done; i++) {
+
+                Set<Molecule> newMolecules = new HashSet<>();
+
+                getNewMolecules(L, noise, moleculesNeighbours, newMolecules);
+
+                va = getVa(newMolecules);
+
+
+                engine = new Engine(L, N, M, Rc, true, newMolecules);
+                moleculesNeighbours = engine.start();
+
+
+            }
+                long end = System.currentTimeMillis();
+                System.out.print(va + "\t");
+
+                System.out.println(" time: " + (end - start) + "ms.");
+        }
+
+    private static void getNewMolecules(int L, double noise, Map<Molecule, Set<Molecule>> moleculesNeighbours, Set<Molecule> newMolecules) {
+        for (Molecule m : moleculesNeighbours.keySet()) {
+            double newAngle = getAngleFromNeighbours(m, moleculesNeighbours.get(m), noise);
+            Point newLocation = getLocationFromAngle(m, newAngle, L);
+            Molecule newMolecule = new Molecule(m.getId(), m.getRatio(), null, newLocation, m.getVelocity(), newAngle);
+            newMolecules.add(newMolecule);
+        }
+    }
+
+
+    public static void startRandomSimulation(int L, int N, double noise,String outPath){
+        int M = L;
+        int Rc = 1;
+        Set<Molecule> molecules = randomMolecules(L,N);
+
+
+        Engine engine = new Engine(L, N, M, Rc, true, molecules);
+        Map<Molecule, Set<Molecule>> moleculesNeighbours = engine.start();
+
+        final int maxT = 2000;
+        long start = System.currentTimeMillis();
+        boolean done = false;
+        double va = 0;
+        for (int i = 0; i < maxT && !done; i++) {
+
+            Set<Molecule> newMolecules = new HashSet<>();
+
+            getNewMolecules(L, noise, moleculesNeighbours, newMolecules);
+
+            va = getVa(newMolecules);
+
+
+            engine = new Engine(L, N, M, Rc, true, newMolecules);
+            moleculesNeighbours = engine.start();
+
+            String fileString = generateFileString(newMolecules);
+            writeToFile(fileString, i, outPath);
+
+            if(va > 0.999) {
+                done = true;
+            }
+
+
+        }
+        long end = System.currentTimeMillis();
+        System.out.print(va + "\t");
+
+        System.out.println(" time: " + (end - start) + "ms.");
+    }
+
+    public static Set<Molecule> randomMolecules(int L, int N){
+        Random random= new Random();
+        Set<Molecule> molecules = new HashSet<Molecule>();
+            for(int i=0; i<N; i++){
+                double x = random.nextDouble()*L;
+                double y = random.nextDouble()*L;
+                double velocity = 0.03;
+                double angle = random.nextDouble()*2*Math.PI;
+                molecules.add(new Molecule(i,0,null, new Point(x,y),velocity,angle));
+            }
+            return molecules;
+        }
+
+    public static void startSimulationWritingFiles(String staticPath, String dynamicPath, String outPath) {
+        Parser parser = new Parser(staticPath, dynamicPath);
+
+        int L = parser.getL();
+        int N = parser.getN();
+        int M = parser.getM();
+        double Rc = parser.getRc();
+        boolean periodic = parser.isPeriodic();
+        double noise = 2;
+
+        Set<Molecule> molecules = parser.getMolecules();
+
+        Engine engine = new Engine(L, N, M, Rc, periodic, molecules);
+        Map<Molecule, Set<Molecule>> moleculesNeighbours = engine.start();
+
+            final int maxT = 4000;
+            long start = System.currentTimeMillis();
+            boolean done = false;
+            double va = 0;
+            for (int i = 0; i < maxT && !done; i++) {
+
+                Set<Molecule> newMolecules = new HashSet<>();
+
+                getNewMolecules(L, noise, moleculesNeighbours, newMolecules);
+                va = getVa(newMolecules);
+
+
+                engine = new Engine(L, N, M, Rc, periodic, newMolecules);
+                moleculesNeighbours = engine.start();
+                String fileString = generateFileString(newMolecules);
+                writeToFile(fileString, i, outPath);
+
+            if(va > 0.999) {
+                done = true;
+            }
+
+            long end = System.currentTimeMillis();
+            System.out.print(va + "\t");
+
+            System.out.println(" time: " + (end - start) + "ms.");
+        }
     }
 
     public static String generateFileString(Set<Molecule> allMolcules){
@@ -83,7 +175,7 @@ public class Main {
                     .append(" ")
                     .append(current.getRatio())
                     .append(" ")
-                    .append(getRGBDouuble(current.getAngle()))
+                    .append(getRGBDouble(current.getAngle()))
                     .append(vx*1000)
                     .append(" ")
                     .append(vy*1000)
@@ -135,42 +227,9 @@ public class Main {
     }
 
 
-//    private static String getRGB(double radius){
-//        int r,g,b;
-//        if(radius <Math.PI/3){
-//            r=255;
-//            g=(int)(radius/(Math.PI/3)*255);
-//            b=0;
-//        }else if( radius < Math.PI*2/3){
-//            r=255-(int)((radius-Math.PI/3)/(Math.PI/3)*255);
-//            g=255;
-//            b=0;
-//        }else if(radius < Math.PI){
-//            r=0;
-//            g=255;
-//            b=(int)((radius-2*Math.PI/3)/(Math.PI/3)*255);
-//
-//        }else if(radius< Math.PI*4/3){
-//            r=0;
-//            g=255-(int)((radius-Math.PI)/(Math.PI/3)*255);
-//            b=255;
-//        }else if(radius < Math.PI*5/3){
-//            r=(int)((radius-4*Math.PI/3)/(Math.PI/3)*255);
-//            g=0;
-//            b=255;
-//        }else if(radius<= Math.PI*2){
-//            r=255;
-//            g=0;
-//            b=255-(int)((radius-5*Math.PI/3)/(Math.PI/3)*255);
-//        }else {
-//            r=255;
-//            g=255;
-//            b=255;
-//        }
-//        return r+" "+g+" "+b+" ";
-//    }
 
-    private static String getRGBDouuble(double radius){
+
+    private static String getRGBDouble(double radius){
         while(radius<0){
             radius+=Math.PI*2;
         }
@@ -208,7 +267,7 @@ public class Main {
         return r+" "+g+" "+b+" ";
     }
 
-    private static double getVa(Set<Molecule> molecules) {
+    private static double getVa (Set<Molecule> molecules) {
         double totalVx = 0;
         double totalVy = 0;
         double velocity = 0;
