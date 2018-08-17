@@ -10,13 +10,14 @@ import java.util.Set;
 
 public class Main {
     public static void main(String [ ] args){
-        for(int iteration=1;iteration<=50;iteration++) {
+//        for(int iteration=1;iteration<=50;iteration++) {
         //System.out.println("Iteration\t0.0\t0.5\t1.0\t1.5\t2.0\t2.5\t3.0\t3.5\t4.0\t4.5\t5.0\t");
             //System.out.println();
            // System.out.print(iteration+"\t");
-            startSimulationForResults(20,1200,1.5);
-        }
+//            startSimulationForResults(20,1200,1.5);
+//        }
 //        startRandomSimulation(7,147,0.1,args[2]);
+        startSimulationWritingFiles(args[0],args[1],args[2]);
         }
 
         public static void startSimulationForResults(int L, int N, double noise){
