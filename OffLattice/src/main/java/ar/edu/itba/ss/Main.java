@@ -10,18 +10,18 @@ import java.util.Set;
 
 public class Main {
     public static void main(String [ ] args){
-//        for(int iteration=1;iteration<=200;iteration++) {
-//        //System.out.println("Iteration\t0.0\t0.5\t1.0\t1.5\t2.0\t2.5\t3.0\t3.5\t4.0\t4.5\t5.0\t");
-//            //System.out.println();
-//            System.out.print(iteration+"\t");
-//            startSimulationForResults(20,50,0.2);
-//        }
-        startRandomSimulation(7,100,0.2,args[2]);
+        for(int iteration=1;iteration<=50;iteration++) {
+        //System.out.println("Iteration\t0.0\t0.5\t1.0\t1.5\t2.0\t2.5\t3.0\t3.5\t4.0\t4.5\t5.0\t");
+            //System.out.println();
+           // System.out.print(iteration+"\t");
+            startSimulationForResults(20,1200,1.5);
+        }
+//        startRandomSimulation(7,147,0.1,args[2]);
         }
 
         public static void startSimulationForResults(int L, int N, double noise){
         int M = L;
-        int Rc = 1;
+        double Rc = 1;
             Set<Molecule> molecules = randomMolecules(L,N);
 
 
@@ -30,9 +30,8 @@ public class Main {
 
             final int maxT = 2000;
             long start = System.currentTimeMillis();
-            boolean done = false;
             double va = 0;
-            for (int i = 0; i < maxT && !done; i++) {
+            for (int i = 0; i < maxT ; i++) {
 
                 Set<Molecule> newMolecules = new HashSet<>();
 
@@ -47,9 +46,9 @@ public class Main {
 
             }
                 long end = System.currentTimeMillis();
-                System.out.print(va + "\t");
+                System.out.println(new Double(va).toString().replace('.',',') + "\t");
 
-                System.out.println(" time: " + (end - start) + "ms.");
+                //System.out.println(" time: " + (end - start) + "ms.");
         }
 
     private static void getNewMolecules(int L, double noise, Map<Molecule, Set<Molecule>> moleculesNeighbours, Set<Molecule> newMolecules) {
@@ -64,7 +63,7 @@ public class Main {
 
     public static void startRandomSimulation(int L, int N, double noise,String outPath){
         int M = L;
-        int Rc = 1;
+        double Rc = 1;
         Set<Molecule> molecules = randomMolecules(L,N);
 
 
