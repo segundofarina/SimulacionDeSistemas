@@ -8,6 +8,7 @@
         <module>CellIndexMethod</module>
         <module>ui</module>
         <module>OffLattice</module>
+        <module>EventDrivenMolecularDynamics</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>
