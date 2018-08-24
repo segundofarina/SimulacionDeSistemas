@@ -1,4 +1,4 @@
-package ar.edu.itba.ss.tp3;
+package ar.edu.itba.ss;
 
 import java.util.HashSet;
 import java.util.Random;
