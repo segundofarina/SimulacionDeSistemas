@@ -10,6 +10,6 @@ public class App
     {
         Simulation s = new Simulation(0.5, 1000);
 
-        s.start();
+        s.start(100);
     }
 }

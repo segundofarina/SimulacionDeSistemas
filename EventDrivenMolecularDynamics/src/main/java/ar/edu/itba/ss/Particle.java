@@ -3,6 +3,7 @@ package ar.edu.itba.ss;
 import java.util.Objects;
 
 public class Particle {
+    private int id;
     private double xPosition;
     private double yPosition;
     private double xSpeed;
@@ -10,7 +11,8 @@ public class Particle {
     private double radius;
     private double mass;
 
-    public Particle(double xPosition, double yPosition, double xSpeed, double ySpeed, double radius, double mass) {
+    public Particle(int id, double xPosition, double yPosition, double xSpeed, double ySpeed, double radius, double mass) {
+        this.id = id;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.xSpeed = xSpeed;
@@ -75,5 +77,18 @@ public class Particle {
     @Override
     public int hashCode() {
         return Objects.hash(xPosition, yPosition, xSpeed, ySpeed, radius, mass);
+    }
+
+    @Override
+    public String toString() {
+        return "Particle{" +
+                "id=" + id +
+                "xPosition=" + xPosition +
+                ", yPosition=" + yPosition +
+                ", xSpeed=" + xSpeed +
+                ", ySpeed=" + ySpeed +
+                ", radius=" + radius +
+                ", mass=" + mass +
+                '}';
     }
 }

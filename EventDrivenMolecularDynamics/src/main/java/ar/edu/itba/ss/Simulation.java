@@ -1,6 +1,7 @@
 package ar.edu.itba.ss;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
 
@@ -27,8 +28,9 @@ public class Simulation {
         Random rand = new Random();
 
         // Add large particle
-        particles.add(new Particle(boxSize/2, boxSize/2, 0, 0, largeRadius, largeMass));
+        particles.add(new Particle(0,boxSize/2, boxSize/2, 0, 0, largeRadius, largeMass));
 
+        int id = 1;
         // Add all small particles
         while(particles.size() < smallParticlesAmount + 1) {
             double xPosition = rand.nextDouble() * (boxSize - 2*smallRadius) + smallRadius;
@@ -40,7 +42,8 @@ public class Simulation {
             double ySpeed = speed * Math.sin(angle);
 
             if(!isOnExistentParticle(xPosition, yPosition, smallRadius)) {
-                particles.add(new Particle(xPosition, yPosition, xSpeed, ySpeed, smallRadius, smallMass));
+                particles.add(new Particle(id, xPosition, yPosition, xSpeed, ySpeed, smallRadius, smallMass));
+                id++;
             }
         }
     }
@@ -56,19 +59,21 @@ public class Simulation {
     }
 
 
-    public void start() {
-        final int iterations = 100;
+    public void start(int iterations) {
         final Set<Particle> crashedParticles = new HashSet<>();
 
         for(int i = 0; i < iterations; i++) {
             double nextCrashTime = getNextCrashTime(crashedParticles);
 
+            System.out.println(crashedParticles);
+
             updateParticlesPosition(nextCrashTime);
 
             updateCrashedParticles(crashedParticles);
-        }
 
-        //System.out.println(getNextCrashTime());
+            System.out.println(nextCrashTime);
+            System.out.println(crashedParticles);
+        }
 
     }
 
@@ -153,14 +158,43 @@ public class Simulation {
     }
 
     private void updateCrashedParticles(Set<Particle> crashedParticles) {
+        Iterator<Particle> it = crashedParticles.iterator();
+
         /* Crashed against wall */
         if(crashedParticles.size() == 1) {
-
+            Particle p = it.next();
+            if(crashedAgainstVerticalWall(p)) {
+                p.setxSpeed(-p.getxSpeed());
+            } else {
+                p.setySpeed(-p.getySpeed());
+            }
         }
 
         /* Crashed against other particle */
         if(crashedParticles.size() == 2) {
+            Particle p1 = it.next();
+            Particle p2 = it.next();
 
+            double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
+            double o = p1.getRadius() + p2.getRadius();
+            double J = (2 * p1.getMass() * p2.getMass() * dVdR) / ( o * (p1.getMass() + p2.getMass()) );
+            double Jx = J * (p1.getxPosition() - p2.getxPosition()) / o;
+            double Jy = J * (p1.getyPosition() - p2.getyPosition()) / o;
+
+            p1.setxSpeed(p1.getxSpeed() + Jx / p1.getMass());
+            p1.setySpeed(p1.getySpeed() + Jy / p1.getMass());
+            p2.setxSpeed(p2.getxSpeed() - Jx / p2.getMass());
+            p2.setySpeed(p2.getySpeed() - Jy / p2.getMass());
         }
+    }
+
+    private boolean crashedAgainstVerticalWall(Particle p) {
+        if(p.getxPosition() <= p.getRadius()) {
+            return true;
+        }
+        if(p.getxPosition() >= boxSize - p.getRadius()) {
+            return true;
+        }
+        return false;
     }
 }
