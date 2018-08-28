@@ -21,6 +21,11 @@ public class Particle {
         this.mass = mass;
     }
 
+    public int getId() {
+        return id;
+    }
+
+
     public double getxPosition() {
         return xPosition;
     }
@@ -83,7 +88,7 @@ public class Particle {
     public String toString() {
         return "Particle{" +
                 "id=" + id +
-                "xPosition=" + xPosition +
+                ", xPosition=" + xPosition +
                 ", yPosition=" + yPosition +
                 ", xSpeed=" + xSpeed +
                 ", ySpeed=" + ySpeed +

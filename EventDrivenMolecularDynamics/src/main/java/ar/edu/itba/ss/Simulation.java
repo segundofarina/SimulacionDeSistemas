@@ -1,9 +1,9 @@
 package ar.edu.itba.ss;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Random;
-import java.util.Set;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.*;
 
 public class Simulation {
     private double boxSize;
@@ -69,11 +69,48 @@ public class Simulation {
 
             updateParticlesPosition(nextCrashTime);
 
-            updateCrashedParticles(crashedParticles);
+            updateSpeedCrashedParticles(crashedParticles);
 
             System.out.println(nextCrashTime);
             System.out.println(crashedParticles);
+
+            writeToFile(generateFileString(particles),i,"/Users/segundofarina/TP/TP-SS/out");
         }
+
+    }
+
+    public void startForAnimation(int animationTime){
+        double jump = (double)1/60;
+        double nextFrame = jump;
+        double time = 0;
+        int i=0;
+        final Set<Particle> crashedParticles = new HashSet<>();
+        while (time<animationTime && i<800){
+            double nextCrashTime = getNextCrashTime(crashedParticles);
+
+            if(nextCrashTime +time > nextFrame){
+                updateParticlesPosition(nextFrame-time);
+
+                writeToFile(generateFileString(particles),i++,"/Users/segundofarina/TP/TP-SS/out");
+                //updateParticlesPosition(nextCrashTime+time-nextFrame);
+                time=nextFrame;
+                nextFrame+=jump;
+
+            }else{
+                updateParticlesPosition(nextCrashTime);
+                updateSpeedCrashedParticles(crashedParticles);
+                time+=nextCrashTime;
+            }
+
+
+
+
+
+
+
+
+        }
+        System.out.print("Time"+time+" i"+i);
 
     }
 
@@ -102,21 +139,44 @@ public class Simulation {
         return time;
     }
 
-    private double particlesCrash(Particle p1, Particle p2) {
-        double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
-        if(dVdR >= 0) {
+    static double particlesCrash(Particle pi, Particle pj) {
+//        double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
+//        if(dVdR >= 0) {
+//            return Double.POSITIVE_INFINITY;
+//        }
+//
+//        double dVdV = Math.pow(p2.getxSpeed() - p1.getxSpeed(), 2) + Math.pow(p2.getySpeed() - p1.getySpeed(), 2);
+//        double dRdR = Math.pow(p2.getxPosition() - p1.getxPosition(), 2) + Math.pow(p2.getyPosition() - p1.getyPosition(), 2);
+//        double d = Math.pow(dVdR, 2) - dVdV * (dRdR - Math.pow(p2.getRadius() + p1.getRadius(), 2));
+//
+//        if(d < 0) {
+//            return Double.POSITIVE_INFINITY;
+//        }
+//
+//        return - (dVdR + Math.sqrt(d)) / (dVdV);
+        double dvx = pj.getxSpeed()-pi.getxSpeed();
+        double dvy = pj.getySpeed()-pi.getySpeed();
+
+        double dx = pj.getxPosition()-pi.getxPosition();
+        double dy = pj.getyPosition()-pi.getyPosition();
+
+        double dvdr = dvx*dx + dvy*dy;
+        if(dvdr >= 0) {
             return Double.POSITIVE_INFINITY;
         }
 
-        double dVdV = Math.pow(p2.getxSpeed() - p1.getxSpeed(), 2) + Math.pow(p2.getySpeed() - p1.getySpeed(), 2);
-        double dRdR = Math.pow(p2.getxPosition() - p1.getxPosition(), 2) + Math.pow(p2.getyPosition() - p1.getyPosition(), 2);
-        double d = Math.pow(dVdR, 2) - dVdV * (dRdR - Math.pow(p2.getRadius() + p1.getRadius(), 2));
+        double dvdv = dvx*dvx + dvy*dvy;
+        double drdr = dx*dx + dy*dy;
+        double phi = pi.getRadius()+pj.getRadius();
+
+        double d = dvdr*dvdr - dvdv*(drdr-phi*phi);
 
         if(d < 0) {
             return Double.POSITIVE_INFINITY;
         }
 
-        return - (dVdR + Math.sqrt(d)) / (dVdV);
+
+        return -(dvdr+Math.sqrt(d))/dvdv;
     }
 
     private double wallCrash(Particle p) {
@@ -157,7 +217,7 @@ public class Simulation {
         crashedParticles.add(o);
     }
 
-    private void updateCrashedParticles(Set<Particle> crashedParticles) {
+    private void updateSpeedCrashedParticles(Set<Particle> crashedParticles) {
         Iterator<Particle> it = crashedParticles.iterator();
 
         /* Crashed against wall */
@@ -172,19 +232,27 @@ public class Simulation {
 
         /* Crashed against other particle */
         if(crashedParticles.size() == 2) {
-            Particle p1 = it.next();
-            Particle p2 = it.next();
+            Particle pi = it.next();
+            Particle pj = it.next();
 
-            double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
-            double o = p1.getRadius() + p2.getRadius();
-            double J = (2 * p1.getMass() * p2.getMass() * dVdR) / ( o * (p1.getMass() + p2.getMass()) );
-            double Jx = J * (p1.getxPosition() - p2.getxPosition()) / o;
-            double Jy = J * (p1.getyPosition() - p2.getyPosition()) / o;
+            //double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
+            double dvx = pj.getxSpeed()-pi.getxSpeed();
+            double dvy = pj.getySpeed()-pi.getySpeed();
 
-            p1.setxSpeed(p1.getxSpeed() + Jx / p1.getMass());
-            p1.setySpeed(p1.getySpeed() + Jy / p1.getMass());
-            p2.setxSpeed(p2.getxSpeed() - Jx / p2.getMass());
-            p2.setySpeed(p2.getySpeed() - Jy / p2.getMass());
+            double dx = pj.getxPosition()-pi.getxPosition();
+            double dy = pj.getyPosition()-pi.getyPosition();
+
+            double dvdr = dvx*dx + dvy*dy;
+
+            double phi = pi.getRadius() + pj.getRadius();
+            double J = (2 * pi.getMass() * pj.getMass() * dvdr) / ( phi * (pi.getMass() + pj.getMass()) );
+            double Jx = J * (pj.getxPosition() - pi.getxPosition()) / phi;
+            double Jy = J * (pj.getyPosition() - pi.getyPosition()) / phi;
+
+            pi.setxSpeed(pi.getxSpeed() + Jx / pi.getMass());
+            pi.setySpeed(pi.getySpeed() + Jy / pi.getMass());
+            pj.setxSpeed(pj.getxSpeed() - Jx / pj.getMass());
+            pj.setySpeed(pj.getySpeed() - Jy / pj.getMass());
         }
     }
 
@@ -196,5 +264,52 @@ public class Simulation {
             return true;
         }
         return false;
+    }
+
+    private String generateFileString(Set<Particle> allParticles){
+
+        StringBuilder builder = new StringBuilder()
+                .append(allParticles.size()+4)
+                .append("\r\n")
+                //.append("//ID\t X\t Y\t Radius\t R\t G\t B\t vx\t vy\t \r\n");
+                .append("//ID\t X\t Y\t Radius\t vx\t vy\t\r\n");
+        Set<Particle> limits =new HashSet<>();
+        limits.addAll(
+                Arrays.asList(new Particle(-1,0,0,0,0,0,0),
+        new Particle(-2,0,boxSize,0,0,0,0),
+        new Particle(-3,boxSize,0,0,0,0,0),
+        new Particle(-4,boxSize,boxSize,0,0,0,0)));
+        appendParticles(allParticles, builder);
+        appendParticles(limits,builder);
+        return builder.toString();
+    }
+
+    private void appendParticles(Set<Particle> allParticles, StringBuilder builder) {
+        for(Particle current: allParticles){
+            double vx = current.getxSpeed();
+            double vy = current.getySpeed();
+            builder.append(current.getId())
+                    .append(" ")
+                    .append(current.getxPosition())
+                    .append(" ")
+                    .append(current.getyPosition())
+                    .append(" ")
+                    .append(current.getRadius())
+                    .append(" ")
+                    .append(new Double(vx).floatValue())
+                    .append(" ")
+                    .append(new Double(vy).floatValue())
+                    .append("\r\n");
+
+
+        }
+    }
+
+    public static void writeToFile(String data, int inedx, String path){
+        try {
+            Files.write(Paths.get(path + "/eventDriven" + inedx + ".txt"), data.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
