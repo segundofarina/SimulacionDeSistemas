@@ -20,18 +20,17 @@ public class Simulation {
         this.particles = new HashSet<>();
 
         addParticles(smallParticlesAmount);
-        System.out.println(particles.size());
     }
 
     /* Add random particles to the box */
-    private void addParticles(int smallPariclesAmount) {
+    private void addParticles(int smallParticlesAmount) {
         Random rand = new Random();
 
         // Add large particle
         particles.add(new Particle(boxSize/2, boxSize/2, 0, 0, largeRadius, largeMass));
 
         // Add all small particles
-        while(particles.size() < smallPariclesAmount + 1) {
+        while(particles.size() < smallParticlesAmount + 1) {
             double xPosition = rand.nextDouble() * (boxSize - 2*smallRadius) + smallRadius;
             double yPosition = rand.nextDouble() * (boxSize - 2*smallRadius) + smallRadius;
 
@@ -58,26 +57,38 @@ public class Simulation {
 
 
     public void start() {
+        final int iterations = 100;
+        final Set<Particle> crashedParticles = new HashSet<>();
 
-        System.out.println(getNextCrashTime());
+        for(int i = 0; i < iterations; i++) {
+            double nextCrashTime = getNextCrashTime(crashedParticles);
+
+            updateParticlesPosition(nextCrashTime);
+
+            updateCrashedParticles(crashedParticles);
+        }
+
+        //System.out.println(getNextCrashTime());
 
     }
 
-    private double getNextCrashTime() {
+    private double getNextCrashTime(Set<Particle> crashedParticles) {
         double time = Double.POSITIVE_INFINITY;
         for(Particle p : particles) {
             // get wall crash time
             double wallCrashTime = wallCrash(p);
             if(time > wallCrashTime) {
                 time = wallCrashTime;
+                saveCrashedParticle(crashedParticles, p);
             }
 
             // get other particles crash
             for(Particle other : particles) {
                 if(!other.equals(p)) {
                     double particleCrashTime = particlesCrash(p, other);
-                    if(particleCrashTime >= 0 && particleCrashTime < time) {
+                    if(particleCrashTime < time) {
                         time = particleCrashTime;
+                        saveCrashedParticle(crashedParticles, p, other);
                     }
                 }
             }
@@ -89,7 +100,7 @@ public class Simulation {
     private double particlesCrash(Particle p1, Particle p2) {
         double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
         if(dVdR >= 0) {
-            return -1;
+            return Double.POSITIVE_INFINITY;
         }
 
         double dVdV = Math.pow(p2.getxSpeed() - p1.getxSpeed(), 2) + Math.pow(p2.getySpeed() - p1.getySpeed(), 2);
@@ -97,7 +108,7 @@ public class Simulation {
         double d = Math.pow(dVdR, 2) - dVdV * (dRdR - Math.pow(p2.getRadius() + p1.getRadius(), 2));
 
         if(d < 0) {
-            return -1;
+            return Double.POSITIVE_INFINITY;
         }
 
         return - (dVdR + Math.sqrt(d)) / (dVdV);
@@ -121,5 +132,35 @@ public class Simulation {
         }
 
         return (minTimeX < minTimeY) ? minTimeX : minTimeY;
+    }
+
+    private void updateParticlesPosition(double time) {
+        for(Particle p : particles) {
+            p.setxPosition(p.getxPosition() + p.getxSpeed() * time);
+            p.setyPosition(p.getyPosition() + p.getySpeed() * time);
+        }
+    }
+
+    private void saveCrashedParticle(Set<Particle> crashedParticles, Particle p) {
+        crashedParticles.clear();
+        crashedParticles.add(p);
+    }
+
+    private void saveCrashedParticle(Set<Particle> crashedParticles, Particle p, Particle o) {
+        crashedParticles.clear();
+        crashedParticles.add(p);
+        crashedParticles.add(o);
+    }
+
+    private void updateCrashedParticles(Set<Particle> crashedParticles) {
+        /* Crashed against wall */
+        if(crashedParticles.size() == 1) {
+
+        }
+
+        /* Crashed against other particle */
+        if(crashedParticles.size() == 2) {
+
+        }
     }
 }
