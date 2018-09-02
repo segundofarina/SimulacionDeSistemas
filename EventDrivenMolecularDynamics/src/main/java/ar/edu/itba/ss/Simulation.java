@@ -1,13 +1,21 @@
 package ar.edu.itba.ss;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Simulation {
     private double boxSize;
     private Set<Particle> particles;
+    private  BufferedWriter bw;
+    private PriorityQueue<Collision> queue;
 
     private final double smallRadius = 0.005; // meters
     private final double smallMass = 0.1; // grams
@@ -16,10 +24,14 @@ public class Simulation {
 
     private final double maxSpeed = 0.1;
 
+    private double time;
+
     public Simulation(double boxSize, int smallParticlesAmount) {
         this.boxSize = boxSize;
         this.particles = new HashSet<>();
-
+        this.bw=null;
+        this.queue = new PriorityQueue<>();
+        this.time =0;
         addParticles(smallParticlesAmount);
     }
 
@@ -58,41 +70,126 @@ public class Simulation {
         return false;
     }
 
+    public void start(int iterations, String outPath) {
+        long start= System.currentTimeMillis();
+        if (!initalizeBW(outPath)) return;
 
-    public void start(int iterations) {
+        calculateNextCrashTimeForEveryone();
+
+        for(int i = 0; i < iterations; i++) {
+            Collision nextCollision = queue.poll();
+
+            updateParticlesPosition(nextCollision.getTime()-time);
+
+            updateSpeedCrashedParticles(nextCollision.getParticles());
+
+            appendToFile(bw,generateFileString(particles));
+
+            time=nextCollision.getTime();
+
+            for(Particle p : nextCollision.getParticles()){
+                updateQueue(p);
+            }
+
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Simulated time: "+time+"s");
+
+        System.out.println("Proccesing time:"+(end-start)+"ms");
+
+    }
+
+    public void startBruteForce(int iterations,String outPath) {
+        long start= System.currentTimeMillis();
         final Set<Particle> crashedParticles = new HashSet<>();
+        if (!initalizeBW(outPath)) return;
+
 
         for(int i = 0; i < iterations; i++) {
             double nextCrashTime = getNextCrashTime(crashedParticles);
 
-            System.out.println(crashedParticles);
 
             updateParticlesPosition(nextCrashTime);
 
             updateSpeedCrashedParticles(crashedParticles);
+            time+=nextCrashTime;
 
-            System.out.println(nextCrashTime);
-            System.out.println(crashedParticles);
-
-            writeToFile(generateFileString(particles),i,"/Users/segundofarina/TP/TP-SS/out");
+            appendToFile(bw,generateFileString(particles));
         }
+        long end = System.currentTimeMillis();
+        System.out.println("Simulated time: "+time+"s");
+
+        System.out.println("Proccesing time:"+(end-start)+"ms");
+
+        closeBW();
 
     }
 
-    public void startForAnimation(int animationTime){
-        double jump = (double)1/60;
+    public void startForAnimation(int animationTime, String outPath){
+        int framesPerSecond = 10;
+        double jump = (double)1/framesPerSecond;
+        double nextFrame = jump;
+
+        calculateNextCrashTimeForEveryone();
+
+        if (!initalizeBW(outPath)) return;
+
+
+        while (time<animationTime){
+
+
+            Collision nextCollision = queue.poll();
+
+
+            if(nextCollision.getTime() > nextFrame){
+                updateParticlesPosition(nextFrame-time);
+
+                appendToFile(bw,generateFileString(particles));
+                time=nextFrame;
+                nextFrame+=jump;
+                System.out.println(time);
+                queue.add(nextCollision);
+
+            }else{
+
+                updateParticlesPosition(nextCollision.getTime()-time);
+
+                updateSpeedCrashedParticles(nextCollision.getParticles());
+
+                time=nextCollision.getTime();
+
+                for(Particle p : nextCollision.getParticles()){
+                    updateQueue(p);
+                }
+
+
+            }
+
+
+        }
+        System.out.print("Time: "+time);
+
+        closeBW();
+
+    }
+
+    public void startForAnimationBruteForce(int animationTime, String outPath){
+        int framesPerSecond = 10;
+        double jump = (double)1/framesPerSecond;
         double nextFrame = jump;
         double time = 0;
-        int i=0;
         final Set<Particle> crashedParticles = new HashSet<>();
-        while (time<animationTime && i<800){
+
+        if (!initalizeBW(outPath)) return;
+
+
+        while (time<animationTime){
             double nextCrashTime = getNextCrashTime(crashedParticles);
 
             if(nextCrashTime +time > nextFrame){
                 updateParticlesPosition(nextFrame-time);
 
-                writeToFile(generateFileString(particles),i++,"/Users/segundofarina/TP/TP-SS/out");
-                //updateParticlesPosition(nextCrashTime+time-nextFrame);
+                appendToFile(bw,generateFileString(particles));
                 time=nextFrame;
                 nextFrame+=jump;
 
@@ -103,14 +200,66 @@ public class Simulation {
             }
 
 
-
-
-
-
-
-
         }
-        System.out.print("Time"+time+" i"+i);
+        System.out.print("Time: "+time);
+
+        closeBW();
+
+    }
+
+    private void updateQueue(Particle particle) {
+
+
+        queue.removeIf((x)-> x.contains(particle));
+
+        double wallCrashTime = wallCrash(particle);
+        if(wallCrashTime != Double.POSITIVE_INFINITY){
+            queue.add(new WallCollision(particle,wallCrashTime+time));
+        }
+
+        for(Particle other : particles) {
+            if(!other.equals(particle)) {
+                double particleCrashTime = particlesCrash(particle, other);
+                if (particleCrashTime != Double.POSITIVE_INFINITY) {
+                    queue.add(new ParticleCollision(particle, other, particleCrashTime+time));
+                }
+            }
+        }
+
+
+    }
+
+    private void calculateNextCrashTimeForEveryone(){
+        Set<Particle> aux = new HashSet<>(particles);
+        Particle current = aux.iterator().next();
+        aux.remove(current);
+        calculateNextCrashTimeForEveryone(current,aux);
+
+    }
+
+    private void calculateNextCrashTimeForEveryone(Particle p, Set<Particle> others){
+        if(others.size()==0){
+            return;
+        }
+            double time = Double.POSITIVE_INFINITY;
+            //Particle crashAgainst = null;
+            // get wall crash time
+            double wallCrashTime = wallCrash(p);
+            if(wallCrashTime != Double.POSITIVE_INFINITY){
+                queue.add(new WallCollision(p,wallCrashTime));
+            }
+
+
+            // get other particles crash
+            for(Particle other : others) {
+                    double particleCrashTime = particlesCrash(p, other);
+                    if(particleCrashTime != Double.POSITIVE_INFINITY) {
+                        queue.add(new ParticleCollision(p, other, particleCrashTime));
+                    }
+            }
+           Particle next = others.iterator().next();
+            others.remove(next);
+            calculateNextCrashTimeForEveryone(next,others);
 
     }
 
@@ -140,20 +289,6 @@ public class Simulation {
     }
 
     static double particlesCrash(Particle pi, Particle pj) {
-//        double dVdR = (p2.getxSpeed() - p1.getxSpeed()) * (p2.getxPosition() - p2.getxPosition()) + (p2.getySpeed() - p1.getySpeed()) * (p2.getyPosition() - p2.getyPosition());
-//        if(dVdR >= 0) {
-//            return Double.POSITIVE_INFINITY;
-//        }
-//
-//        double dVdV = Math.pow(p2.getxSpeed() - p1.getxSpeed(), 2) + Math.pow(p2.getySpeed() - p1.getySpeed(), 2);
-//        double dRdR = Math.pow(p2.getxPosition() - p1.getxPosition(), 2) + Math.pow(p2.getyPosition() - p1.getyPosition(), 2);
-//        double d = Math.pow(dVdR, 2) - dVdV * (dRdR - Math.pow(p2.getRadius() + p1.getRadius(), 2));
-//
-//        if(d < 0) {
-//            return Double.POSITIVE_INFINITY;
-//        }
-//
-//        return - (dVdR + Math.sqrt(d)) / (dVdV);
         double dvx = pj.getxSpeed()-pi.getxSpeed();
         double dvy = pj.getySpeed()-pi.getySpeed();
 
@@ -257,13 +392,33 @@ public class Simulation {
     }
 
     private boolean crashedAgainstVerticalWall(Particle p) {
-        if(p.getxPosition() <= p.getRadius()) {
+        double delta = 0.00000001;
+        if(p.getxPosition()-delta <= p.getRadius()) {
             return true;
         }
-        if(p.getxPosition() >= boxSize - p.getRadius()) {
+        if(p.getxPosition() +delta>= boxSize - p.getRadius()) {
             return true;
         }
         return false;
+    }
+
+    private void closeBW() {
+        if (bw != null) try {
+            bw.flush();
+            bw.close();
+        } catch (IOException ioe2) {
+            // just ignore it
+        }
+    }
+
+    private boolean initalizeBW(String outPath) {
+        try {
+            bw = new BufferedWriter(new FileWriter(outPath+"/eventDriven" + LocalDateTime.now() + ".txt", true));
+        } catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     private String generateFileString(Set<Particle> allParticles){
@@ -271,7 +426,6 @@ public class Simulation {
         StringBuilder builder = new StringBuilder()
                 .append(allParticles.size()+4)
                 .append("\r\n")
-                //.append("//ID\t X\t Y\t Radius\t R\t G\t B\t vx\t vy\t \r\n");
                 .append("//ID\t X\t Y\t Radius\t vx\t vy\t\r\n");
         Set<Particle> limits =new HashSet<>();
         limits.addAll(
@@ -305,11 +459,11 @@ public class Simulation {
         }
     }
 
-    public static void writeToFile(String data, int inedx, String path){
+    public static void appendToFile (BufferedWriter bw , String data) {
         try {
-            Files.write(Paths.get(path + "/eventDriven" + inedx + ".txt"), data.getBytes());
-        } catch (IOException e) {
-            e.printStackTrace();
+            bw.write(data);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
         }
     }
 }

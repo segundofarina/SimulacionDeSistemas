@@ -1,8 +1,9 @@
 package ar.edu.itba.ss;
 
 import java.util.Objects;
+import java.util.Optional;
 
-public class Particle {
+public class Particle{
     private int id;
     private double xPosition;
     private double yPosition;
@@ -10,6 +11,9 @@ public class Particle {
     private double ySpeed;
     private double radius;
     private double mass;
+
+
+    private int crashesAmount;
 
     public Particle(int id, double xPosition, double yPosition, double xSpeed, double ySpeed, double radius, double mass) {
         this.id = id;
@@ -86,6 +90,7 @@ public class Particle {
 
     @Override
     public String toString() {
+
         return "Particle{" +
                 "id=" + id +
                 ", xPosition=" + xPosition +
@@ -96,4 +101,5 @@ public class Particle {
                 ", mass=" + mass +
                 '}';
     }
+
 }
