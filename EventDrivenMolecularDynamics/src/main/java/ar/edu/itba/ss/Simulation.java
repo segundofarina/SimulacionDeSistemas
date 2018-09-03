@@ -25,6 +25,7 @@ public class Simulation {
     private final double maxSpeed = 0.1;
 
     private double time;
+    private int crashes;
 
     public Simulation(double boxSize, int smallParticlesAmount) {
         this.boxSize = boxSize;
@@ -32,6 +33,7 @@ public class Simulation {
         this.bw=null;
         this.queue = new PriorityQueue<>();
         this.time =0;
+        this.crashes = 0;
         addParticles(smallParticlesAmount);
     }
 
@@ -72,7 +74,14 @@ public class Simulation {
 
     public void start(int iterations, String outPath) {
         long start= System.currentTimeMillis();
+        double nextTime =1;
+        int collisions =0;
+
+
         if (!initalizeBW(outPath)) return;
+
+        appendToFile(bw,"particles: "+particles.size()+ " iterations: "+iterations+"\n");
+
 
         calculateNextCrashTimeForEveryone();
 
@@ -83,9 +92,18 @@ public class Simulation {
 
             updateSpeedCrashedParticles(nextCollision.getParticles());
 
-            appendToFile(bw,generateFileString(particles));
+//            appendToFile(bw,generateFileString(particles));
+
 
             time=nextCollision.getTime();
+
+            if(time > nextTime){
+                System.out.println(collisions+ "\t"+nextTime+" s");
+                appendToFile(bw,collisions+ "\t"+nextTime+" s\n");
+                nextTime++;
+                collisions=0;
+            }
+            collisions++;
 
             for(Particle p : nextCollision.getParticles()){
                 updateQueue(p);
@@ -94,8 +112,11 @@ public class Simulation {
         }
         long end = System.currentTimeMillis();
         System.out.println("Simulated time: "+time+"s");
+        appendToFile(bw,"Simulated time: "+time+"s\n");
+        appendToFile(bw,"Proccesing time:"+(end-start)+"ms\n");
 
         System.out.println("Proccesing time:"+(end-start)+"ms");
+        closeBW();
 
     }
 
@@ -413,6 +434,7 @@ public class Simulation {
 
     private boolean initalizeBW(String outPath) {
         try {
+
             bw = new BufferedWriter(new FileWriter(outPath+"/eventDriven" + LocalDateTime.now() + ".txt", true));
         } catch (IOException e){
             e.printStackTrace();

@@ -23,6 +23,7 @@ public class Particle{
         this.ySpeed = ySpeed;
         this.radius = radius;
         this.mass = mass;
+        this.crashesAmount = 0;
     }
 
     public int getId() {
@@ -48,6 +49,14 @@ public class Particle{
 
     public double getRadius() {
         return radius;
+    }
+
+    public void addCrash(){
+        crashesAmount++;
+    }
+
+    public int getCrashesAmount(){
+        return crashesAmount;
     }
 
     public double getMass() {
