@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,7 +26,7 @@ public class Simulation {
     private final double maxSpeed = 0.1;
 
     private double time;
-    private int crashes;
+
 
     public Simulation(double boxSize, int smallParticlesAmount) {
         this.boxSize = boxSize;
@@ -33,7 +34,6 @@ public class Simulation {
         this.bw=null;
         this.queue = new PriorityQueue<>();
         this.time =0;
-        this.crashes = 0;
         addParticles(smallParticlesAmount);
     }
 
@@ -72,18 +72,21 @@ public class Simulation {
         return false;
     }
 
+
+
+
     public void start(int iterations, String outPath) {
         long start= System.currentTimeMillis();
-        double nextTime =1;
-        int collisions =0;
 
-
+        DecimalFormat df = new DecimalFormat("#");
+        df.setMaximumFractionDigits(8);
         if (!initalizeBW(outPath)) return;
 
+        appendToFile(bw,"Time between collisions: \n");
         appendToFile(bw,"particles: "+particles.size()+ " iterations: "+iterations+"\n");
 
-
         calculateNextCrashTimeForEveryone();
+
 
         for(int i = 0; i < iterations; i++) {
             Collision nextCollision = queue.poll();
@@ -92,8 +95,116 @@ public class Simulation {
 
             updateSpeedCrashedParticles(nextCollision.getParticles());
 
-//            appendToFile(bw,generateFileString(particles));
+            appendToFile(bw,df.format((nextCollision.getTime()-time))+"\n");
 
+            System.out.println(new Double(nextCollision.getTime()-time));
+
+            time=nextCollision.getTime();
+
+            for(Particle p : nextCollision.getParticles()){
+                updateQueue(p);
+            }
+
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Simulated time: "+time+"s");
+        appendToFile(bw,"Simulated time: "+time+"s\n");
+        appendToFile(bw,"Proccesing time:"+(end-start)+"ms\n");
+
+        System.out.println("Proccesing time:"+(end-start)+"ms");
+        closeBW();
+
+    }
+
+    public void startUntilCrash( String outPath) {
+        long start= System.currentTimeMillis();
+        double nextTime =1;
+        int collisions =0;
+
+        if (!initalizeBW(outPath)) return;
+
+        appendToFile(bw,"particles: "+particles.size()+ " end UntilCrash\n");
+
+
+        StringBuilder builder = new StringBuilder();
+        particles.stream().forEach((x)->builder.append(Math.sqrt(Math.pow(x.getxSpeed(),2)+Math.pow(x.getySpeed(),2))+"\n"));
+        appendToFile(bw,builder.toString());
+
+
+        Particle largePaticle=null;
+        for(Particle p : particles){
+            if(p.getRadius() == largeRadius){
+                largePaticle = p;
+            }
+        }
+        calculateNextCrashTimeForEveryone();
+
+
+        while(true) {
+
+            Collision nextCollision = queue.poll();
+
+
+
+            updateParticlesPosition(nextCollision.getTime()-time);
+
+            updateSpeedCrashedParticles(nextCollision.getParticles());
+
+            time=nextCollision.getTime();
+            //appendToFile(bw,collisions+ "\t"+nextTime+" s\n");
+            if(time > nextTime){
+                System.out.println(collisions+ "\t"+nextTime+" s");
+
+                nextTime++;
+                collisions=0;
+            }
+            collisions++;
+
+            for(Particle p : nextCollision.getParticles()){
+                updateQueue(p);
+            }
+
+            if(nextCollision.contains(largePaticle) && nextCollision.getParticles().size()==1){
+                break;
+            }
+
+        }
+
+        appendToFile(bw,"kjbkjbkbjkjkjbkjbkjhkljhljkhkjhkljhlkjhkjhkhlkjhlkjhkjhkjhkjhkjlhkljhkljhklj");
+
+        StringBuilder builder2 = new StringBuilder();
+        particles.stream().forEach((x)->builder2.append(Math.sqrt(Math.pow(x.getxSpeed(),2)+Math.pow(x.getySpeed(),2))+"\n"));
+        appendToFile(bw,builder2.toString());
+        long end = System.currentTimeMillis();
+        System.out.println("Simulated time: "+time+"s");
+        appendToFile(bw,"Simulated time: "+time+"s\n");
+        appendToFile(bw,"Proccesing time:"+(end-start)+"ms\n");
+
+        System.out.println("Proccesing time:"+(end-start)+"ms");
+        closeBW();
+
+    }
+
+
+    public void startForTime(double endTime, String outPath) {
+        long start= System.currentTimeMillis();
+        double nextTime =1;
+        int collisions =0;
+        int iterations =0;
+
+        if (!initalizeBW(outPath)) return;
+
+        appendToFile(bw,"particles: "+particles.size()+ " endTime: "+endTime+"\n");
+
+
+        calculateNextCrashTimeForEveryone();
+
+        while(time<endTime) {
+            Collision nextCollision = queue.poll();
+
+            updateParticlesPosition(nextCollision.getTime()-time);
+
+            updateSpeedCrashedParticles(nextCollision.getParticles());
 
             time=nextCollision.getTime();
 
@@ -116,6 +227,42 @@ public class Simulation {
         appendToFile(bw,"Proccesing time:"+(end-start)+"ms\n");
 
         System.out.println("Proccesing time:"+(end-start)+"ms");
+        closeBW();
+
+    }
+
+    public void startForTimeBruteForce(double endTime,String outPath) {
+        long start= System.currentTimeMillis();
+        final Set<Particle> crashedParticles = new HashSet<>();
+        if (!initalizeBW(outPath)) return;
+        double nextTime =1;
+        int collisions =0;
+
+
+        while (time<endTime) {
+            double nextCrashTime = getNextCrashTime(crashedParticles);
+
+
+            updateParticlesPosition(nextCrashTime);
+
+            if(time > nextTime){
+                System.out.println(collisions+ "\t"+nextTime+" s");
+                appendToFile(bw,collisions+ "\t"+nextTime+" s\n");
+                nextTime++;
+                collisions=0;
+            }
+            collisions++;
+
+            updateSpeedCrashedParticles(crashedParticles);
+            time+=nextCrashTime;
+
+            appendToFile(bw,generateFileString(particles));
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Simulated time: "+time+"s");
+
+        System.out.println("Proccesing time:"+(end-start)+"ms");
+
         closeBW();
 
     }
