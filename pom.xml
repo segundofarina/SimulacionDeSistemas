@@ -9,6 +9,7 @@
         <module>ui</module>
         <module>OffLattice</module>
         <module>EventDrivenMolecularDynamics</module>
+        <module>DampedOscilator</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>
