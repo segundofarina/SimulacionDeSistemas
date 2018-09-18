@@ -107,7 +107,7 @@ public class Simulation {
     }
 
 
-    private void startGearPredictor() {
+    public void startGearPredictor() {
         double time = 0;
 
         while(time < tf) {
@@ -122,7 +122,33 @@ public class Simulation {
     }
 
     private void updateParticleWithGearPredictor() {
+        // Busco r1 a r5
+        double r = particle.getxPosition();
+        double r1 = particle.getxSpeed();
+        double r2 = getForce(r, r1) / mass;
+        double r3 = getForce(r1, r2) / mass;
+        double r4 = getForce(r2, r3) / mass;
+        double r5 = getForce(r3, r4) / mass;
 
+        // Predigo r, r1, r2
+        double rP = r + r1 * dTime + r2 * (Math.pow(dTime, 2) / 2) + r3 * (Math.pow(dTime, 3) / 6) + r4 * (Math.pow(dTime, 4) / 12) + r5 * (Math.pow(dTime, 5) / 60);
+        double r1P = r1 + r2 * dTime + r3 * (Math.pow(dTime, 2) / 2) + r4 * (Math.pow(dTime, 3) / 6) + r5 * (Math.pow(dTime, 4) / 12);
+        double r2P = r2 + r3 * dTime + r4 * (Math.pow(dTime, 2) / 2) + r5 * (Math.pow(dTime, 3) / 6);
+
+        // Calculo dA
+        double r2Dt = getForce(rP, r1P) / mass;
+
+        double dA = r2Dt - r2P;
+
+        // Calculo dR2
+        double dR2 = dA * Math.pow(dTime, 2) / 2;
+
+        // Corrijo r, r1
+        double rC = rP + (3.0/20) * dR2;
+        double r1C = r1P + (251.0/360) * dR2 / dTime;
+
+        particle.setxPosition(rC);
+        particle.setxSpeed(r1C);
     }
 
 
@@ -145,10 +171,8 @@ public class Simulation {
     }
 
     private double getParticleRealPosition(double time) {
-        // A ??
         double A = 1;
 
-        //return A *
-        return 0;
+        return A * Math.exp(-(gama / (2*mass)) * time) * Math.cos( Math.sqrt((k / mass) - (gama*gama / (4 * mass * mass) )) * time );
     }
 }
