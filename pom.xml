@@ -9,6 +9,8 @@
         <module>ui</module>
         <module>OffLattice</module>
         <module>EventDrivenMolecularDynamics</module>
+        <module>SolarSystem</module>
+        <module>OsciladorAmortiguado</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>
