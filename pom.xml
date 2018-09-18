@@ -11,6 +11,7 @@
         <module>EventDrivenMolecularDynamics</module>
         <module>SolarSystem</module>
         <module>OsciladorAmortiguado</module>
+        <module>DampedOscilator</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>

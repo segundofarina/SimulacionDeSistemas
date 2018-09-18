@@ -7,9 +7,9 @@ public abstract class  Collision implements Comparable<Collision> {
 
 private double time;
 
-public Collision(double time){
- this.time=time;
-}
+    public Collision(double time){
+     this.time=time;
+    }
 
     public double getTime() {
         return time;

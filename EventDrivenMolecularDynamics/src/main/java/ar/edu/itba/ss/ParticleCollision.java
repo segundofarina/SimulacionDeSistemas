@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 public class ParticleCollision extends Collision{
     Particle p1;
     Particle p2;
+
     public ParticleCollision (Particle p1, Particle p2, double time){
         super(time);
         this.p1 = p1;
