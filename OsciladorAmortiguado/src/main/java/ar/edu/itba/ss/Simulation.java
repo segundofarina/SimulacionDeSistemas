@@ -1,6 +1,15 @@
 package ar.edu.itba.ss;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.time.LocalDateTime;
+import java.util.Locale;
+
 public class Simulation {
+    private BufferedWriter bw;
     private double dTime;
     private Particle particle;
 
@@ -26,8 +35,9 @@ public class Simulation {
         particle = new Particle(0, initialPosition, 0, v,0,mass);
     }
 
-    public void startVerlet() {
+    public void startVerlet(String outPath) {
         double time = 0;
+        initalizeBW(outPath,"Verlet");
 
         while(time < tf) {
 
@@ -35,9 +45,11 @@ public class Simulation {
 
             // Print particle position
             System.out.println(particle.getxPosition());
+            appendToFile(bw,generateFileString(particle));
 
             time += dTime;
         }
+        closeBW();
 
     }
 
@@ -62,18 +74,21 @@ public class Simulation {
     }
 
 
-    public void startBeeman() {
+    public void startBeeman(String outPath) {
         double time = 0;
-
+        initalizeBW(outPath,"Beeman");
         while(time < tf) {
 
             updateParticleWithBeeman();
 
             // Print particle position
             System.out.println(particle.getxPosition());
+            appendToFile(bw,generateFileString(particle));
 
             time += dTime;
         }
+        closeBW();
+
     }
 
 
@@ -150,5 +165,52 @@ public class Simulation {
 
         //return A *
         return 0;
+    }
+
+
+
+
+
+
+    private void closeBW() {
+        if (bw != null) try {
+            bw.flush();
+            bw.close();
+        } catch (IOException ioe2) {
+            // just ignore it
+        }
+    }
+
+    private boolean initalizeBW(String outPath,String algType) {
+        try {
+
+            bw = new BufferedWriter(new FileWriter(outPath+"/Oscilador-"+algType+"-dt:"+dTime +"-tf:"+tf+ LocalDateTime.now() + ".txt", true));
+        } catch (IOException e){
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    private String generateFileString(Particle particle){
+
+        DecimalFormat df = new DecimalFormat("#");
+        df.setMaximumFractionDigits(12);
+        df.setMinimumIntegerDigits(1);
+        df.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.US));
+        StringBuilder builder = new StringBuilder()
+                .append(df.format(particle.getxPosition()))
+                .append("\n");
+        return builder.toString();
+    }
+
+
+
+    public static void appendToFile (BufferedWriter bw , String data) {
+        try {
+            bw.write(data);
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 }
