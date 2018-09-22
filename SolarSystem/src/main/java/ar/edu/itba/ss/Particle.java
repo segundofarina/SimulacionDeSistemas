@@ -1,5 +1,7 @@
 package ar.edu.itba.ss;
 
+import java.util.Objects;
+
 public class Particle {
     private int id;
     private double xPosition;
@@ -64,5 +66,18 @@ public class Particle {
 
     public double getMass() {
         return mass;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Particle particle = (Particle) o;
+        return id == particle.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
