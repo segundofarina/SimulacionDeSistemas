@@ -17,6 +17,15 @@ public class Particle {
         this.mass = mass;
     }
 
+    public Particle(Particle p) {
+        this.id = p.id;
+        this.xPosition = p.xPosition;
+        this.yPosition = p.yPosition;
+        this.xSpeed = p.xSpeed;
+        this.ySpeed = p.ySpeed;
+        this.mass = p.mass;
+    }
+
     public void setxPosition(double xPosition) {
         this.xPosition = xPosition;
     }

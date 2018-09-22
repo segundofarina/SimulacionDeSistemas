@@ -23,8 +23,13 @@ public class Simulation {
         // Get voyager position and speed acording to the earth and sun
         voyager = new Particle(0, 0, 0, 0, 0, voyagerMass);
 
-        beemanCalculator = new BeemanCalculator();
 
+        // Initialize beeman
+        Set<Particle> particles = new HashSet<Particle>(planets);
+        particles.add(voyager);
+
+        ForceCalculator fc = new ForceCalculator(particles);
+        beemanCalculator = new BeemanCalculator(dTime, fc);
     }
 
     public void start() {
@@ -34,6 +39,7 @@ public class Simulation {
         while(!done && time < 100000) {
 
             // Update planets position
+            beemanCalculator.update(planets);
 
             // Update voyager position
             beemanCalculator.update(voyager);
