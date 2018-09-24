@@ -37,9 +37,10 @@ public class Simulation {
 
     public void startVerlet(String outPath) {
         double time = 0;
+        int iterations = 0;
         initalizeBW(outPath,"Verlet");
 
-        while(time < tf) {
+        while(iterations <= tf/dTime) {
 
             updateParticleWithVerlet();
 
@@ -48,6 +49,7 @@ public class Simulation {
             appendToFile(bw,generateFileString(particle));
 
             time += dTime;
+            iterations++;
         }
         closeBW();
 
@@ -76,8 +78,9 @@ public class Simulation {
 
     public void startBeeman(String outPath) {
         double time = 0;
+        int iterations = 0;
         initalizeBW(outPath,"Beeman");
-        while(time < tf) {
+        while(iterations <= tf/dTime) {
 
             updateParticleWithBeeman();
 
@@ -86,6 +89,7 @@ public class Simulation {
             appendToFile(bw,generateFileString(particle));
 
             time += dTime;
+            iterations++;
         }
         closeBW();
 
@@ -116,24 +120,27 @@ public class Simulation {
         double f = getForce(r, v);
 
         double rDt = r + v * (-dTime) + ( Math.pow(dTime, 2) / (2 * mass) ) * f;
-        double vDt = v + (dTime / mass) * f;
+        double vDt = v + (-dTime / mass) * f;
 
         return getForce(rDt, vDt) / mass;
     }
 
 
-    public void startGearPredictor() {
+    public void startGearPredictor(String outPath) {
         double time = 0;
-
-        while(time < tf) {
+        initalizeBW(outPath,"GearPredictor");
+        int iterations = 0;
+        while(iterations <= tf/dTime) {
 
             updateParticleWithGearPredictor();
 
             // Print particle position
             System.out.println(particle.getxPosition());
-
+            appendToFile(bw,generateFileString(particle));
             time += dTime;
+            iterations++;
         }
+        closeBW();
     }
 
     private void updateParticleWithGearPredictor() {
@@ -171,18 +178,22 @@ public class Simulation {
         return -k * r - gama * v;
     }
 
-    public void startRealSolution() {
+    public void startRealSolution(String outPath) {
         double time = 0;
-
-        while(time < tf) {
+        initalizeBW(outPath,"Real");
+        int iterations = 0;
+        while(iterations <= tf/dTime) {
 
             double pos = getParticleRealPosition(time);
 
             // Print particle postion
             System.out.println(pos);
-
+            particle.setxPosition(pos);
+            appendToFile(bw,generateFileString(particle));
             time += dTime;
+            iterations++;
         }
+        closeBW();
     }
 
     private double getParticleRealPosition(double time) {
@@ -208,7 +219,7 @@ public class Simulation {
     private boolean initalizeBW(String outPath,String algType) {
         try {
 
-            bw = new BufferedWriter(new FileWriter(outPath+"/Oscilador-"+algType+"-dt:"+dTime +"-tf:"+tf+ LocalDateTime.now() + ".txt", true));
+            bw = new BufferedWriter(new FileWriter(outPath+algType+"-dt:"+dTime +"-tf:"+tf + ".txt", true));
         } catch (IOException e){
             e.printStackTrace();
             return false;

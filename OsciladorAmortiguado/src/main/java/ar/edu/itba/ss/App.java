@@ -4,27 +4,33 @@ public class App {
 
     public static void main(String args[]) {
 
-        Simulation s = new Simulation(0.01);
+        String outPath = "/Users/segundofarina/TP/TP-SS/out/Oscilador/";
 
-        s.startVerlet("/Users/segundofarina/TP/TP-SS/out");
+        for(int i=1 ; i<=6; i++) {
 
-        System.out.println("Done");
+            double dTime = Math.pow(10,-i);
+            Simulation s = new Simulation(dTime);
 
-        Simulation s2 = new Simulation(0.01);
+            s.startVerlet(outPath);
 
-        s2.startBeeman("/Users/segundofarina/TP/TP-SS/out");
+            System.out.println("Done");
 
-        System.out.println("Done");
+            Simulation s2 = new Simulation(dTime);
 
-        Simulation s3 = new Simulation(0.1);
+            s2.startBeeman(outPath);
 
-        s3.startGearPredictor();
+            System.out.println("Done");
 
-        System.out.println("Done");
+            Simulation s3 = new Simulation(dTime);
 
-        Simulation s4 = new Simulation(0.1);
+            s3.startGearPredictor(outPath);
 
-        s4.startRealSolution();
+            System.out.println("Done");
+
+            Simulation s4 = new Simulation(dTime);
+
+            s4.startRealSolution(outPath);
+        }
 
     }
 

@@ -9,14 +9,16 @@ public class Particle {
     private double xSpeed;
     private double ySpeed;
     private double mass;
+    private double radius;
 
-    public Particle(int id, double xPosition, double yPosition, double xSpeed, double ySpeed, double mass) {
+    public Particle(int id, double xPosition, double yPosition, double xSpeed, double ySpeed, double mass,double radius) {
         this.id = id;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
         this.mass = mass;
+        this.radius = radius;
     }
 
     public Particle(Particle p) {
@@ -26,6 +28,7 @@ public class Particle {
         this.xSpeed = p.xSpeed;
         this.ySpeed = p.ySpeed;
         this.mass = p.mass;
+        this.radius = p.radius;
     }
 
     public void setxPosition(double xPosition) {
@@ -66,6 +69,10 @@ public class Particle {
 
     public double getMass() {
         return mass;
+    }
+
+    public double getRadius() {
+        return radius;
     }
 
     @Override
