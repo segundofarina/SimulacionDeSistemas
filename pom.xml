@@ -12,6 +12,7 @@
         <module>SolarSystem</module>
         <module>OsciladorAmortiguado</module>
         <module>DampedOscilator</module>
+        <module>Voyager</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>
