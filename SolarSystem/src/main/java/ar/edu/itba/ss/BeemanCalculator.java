@@ -1,7 +1,7 @@
 package ar.edu.itba.ss;
 
 import java.awt.geom.Point2D;
-import java.util.Set;
+import java.util.*;
 
 public class BeemanCalculator {
 
@@ -9,11 +9,16 @@ public class BeemanCalculator {
     private EulerCalculator eulerCalculator;
     private double dTime;
 
-    public BeemanCalculator(double dTime, ForceCalculator forceCalculator) {
+    private Map<Integer, Point2D> oldForce;
+
+    public BeemanCalculator(double dTime, ForceCalculator forceCalculator, Set<Particle> particles) {
         this.forceCalculator = forceCalculator;
         this.dTime = dTime;
 
         this.eulerCalculator = new EulerCalculator(-dTime, forceCalculator);
+
+        oldForce = new HashMap<>();
+        fillOldForce(particles);
     }
 
     public void update(Particle p) {
@@ -36,18 +41,61 @@ public class BeemanCalculator {
         updatedParticle.setyPosition(pos.getY());
 
         // Get particle corrected speed
-        Point2D speed = getNextSpeed(p, updatedParticle, force, forceLastDt);
+        //Point2D speed = getNextSpeed(p, updatedParticle, force, forceLastDt);
 
         // Update particle
         p.setxPosition(pos.getX());
         p.setyPosition(pos.getY());
-        p.setxSpeed(speed.getX());
-        p.setySpeed(speed.getY());
+        //p.setxSpeed(speed.getX());
+        //p.setySpeed(speed.getY());
     }
 
     public void update(Set<Particle> particles) {
         for(Particle p : particles) {
             update(p);
+        }
+    }
+
+    public void updateAll(Set<Particle> particles) {
+        Map<Integer, Particle> updatedParticles = new HashMap<>();
+        Map<Integer, Point2D> forces = new HashMap<>();
+
+        forceCalculator.updateParticles(particles);
+
+        for(Particle p : particles) {
+            Point2D f = forceCalculator.calculate(p);
+            forces.put(p.getId(), f);
+
+            Point2D lastF = oldForce.get(p.getId());
+
+            Point2D r = getNextPosition(p, f, lastF);
+
+            Particle updatedParticle = new Particle(p);
+            updatedParticle.setxPosition(r.getX());
+            updatedParticle.setyPosition(r.getY());
+
+            updatedParticles.put(p.getId(), updatedParticle);
+        }
+
+        forceCalculator.updateParticles(new HashSet<>(updatedParticles.values()));
+
+        for(Particle p : updatedParticles.values()) {
+            Point2D f = forces.get(p.getId());
+            Point2D lastF = oldForce.get(p.getId());
+            Point2D nextF = forceCalculator.calculate(p);
+
+            Point2D v = getNextSpeed(p, f, lastF, nextF);
+
+            p.setxSpeed(v.getX());
+            p.setySpeed(v.getY());
+        }
+
+        for(Particle p : particles) {
+            Particle updatedParticle = updatedParticles.get(p.getId());
+            p.setxPosition(updatedParticle.getxPosition());
+            p.setyPosition(updatedParticle.getyPosition());
+            p.setxSpeed(updatedParticle.getxSpeed());
+            p.setySpeed(updatedParticle.getySpeed());
         }
     }
 
@@ -62,9 +110,7 @@ public class BeemanCalculator {
         return x + v * dTime + ( (2.0/3) * a - (1.0/6) * aLastDt ) * Math.pow(dTime, 2);
     }
 
-    private Point2D getNextSpeed(Particle p, Particle updatedParticle, Point2D force, Point2D forceLastDt) {
-        Point2D forceNextDt = forceCalculator.calculate(updatedParticle);
-
+    private Point2D getNextSpeed(Particle p, Point2D force, Point2D forceLastDt, Point2D forceNextDt) {
         double x = getNextSpeed(p.getxSpeed(), force.getX()/p.getMass(), forceLastDt.getX()/p.getMass(), forceNextDt.getX()/p.getMass());
         double y = getNextSpeed(p.getySpeed(), force.getY()/p.getMass(), forceLastDt.getY()/p.getMass(), forceNextDt.getY()/p.getMass());
 
@@ -75,4 +121,15 @@ public class BeemanCalculator {
         return v + ( (1.0/3) * aNextDt + (5.0/6) * a - (1.0/6) * aLastDt ) * dTime;
     }
 
+
+    private void fillOldForce(Set<Particle> particles) {
+
+        forceCalculator.updateParticles(particles);
+
+        for(Particle p : particles) {
+            Particle lastParticle = new Particle(p);
+            oldForce.put(p.getId(), forceCalculator.calculate(lastParticle));
+        }
+
+    }
 }

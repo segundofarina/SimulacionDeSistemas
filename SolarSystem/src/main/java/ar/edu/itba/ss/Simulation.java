@@ -14,6 +14,7 @@ public class Simulation {
     private BufferedWriter bw;
 
     private BeemanCalculator beemanCalculator;
+    ForceCalculator forceCalculator;
 
     private static double voyagerMass = 721.9; // kg
     private static int earthRadius = 6378; // km
@@ -29,13 +30,14 @@ public class Simulation {
         Point2D voyagerPos = getVoyagerInitialPosition(L);
         Point2D voyagerSpeed = getVoyagerInitialSpeed(v0);
         voyager = new Particle(planets.values().size(), voyagerPos.getX(), voyagerPos.getY(), voyagerSpeed.getX(), voyagerSpeed.getY(), voyagerMass,1.0E+7);
+        //voyager = new Particle(planets.values().size(), 1.443740752735161E+08, -4.358340518271333E+07, 1.619397734291618E+01 + 0.010573, 4.048704487826319E+01 + 0.010573, voyagerMass,1.0E+7);
 
         // Initialize beeman
-        Set<Particle> particles = new HashSet<Particle>(planets.values());
+        Set<Particle> particles = new HashSet<>(planets.values());
         particles.add(voyager);
 
-        ForceCalculator fc = new ForceCalculator(particles);
-        beemanCalculator = new BeemanCalculator(dTime, fc);
+        forceCalculator = new ForceCalculator(getAllParticlesCopy());
+        beemanCalculator = new BeemanCalculator(dTime, forceCalculator, particles);
 
     }
 
@@ -48,18 +50,23 @@ public class Simulation {
         Particle jupiter = planets.get("jupiter");
         Particle saturn = planets.get("saturn");
 
-        Set<Particle> planetsParticles = new HashSet<Particle>(planets.values());
+        Set<Particle> planetsParticles = new HashSet<>(planets.values());
+
+        Set<Particle> particles = new HashSet<>(planets.values());
+        particles.add(voyager);
 
         int iter = 0;
 
-        while(!done && iter < 100000) {
+        while(!done && iter < 1000000) {
 
             appendToFile(bw,generateFileString(planets.values(),voyager));
             // Update planets position
-            beemanCalculator.update(planetsParticles);
+            //beemanCalculator.update(planetsParticles);
 
             // Update voyager position
-            beemanCalculator.update(voyager);
+            //beemanCalculator.update(voyager);
+            beemanCalculator.updateAll(particles);
+
 
             // Check minimum distance to jupiter
             double distanceToJupiter = distanceBetween(voyager, jupiter);
@@ -81,12 +88,14 @@ public class Simulation {
             //System.out.println("Distance to jupiter: " + distanceToJupiter);
             //System.out.println("Distance to saturn: " + distanceToSaturn);
 
+            //forceCalculator.updateParticles(getAllParticlesCopy());
+
             time += dTime;
             iter++;
         }
 
-        //System.out.println("Min distance to jupiter: " + minDistanceJupiter);
-        //System.out.println("Min distance to saturn: " + minDistanceSaturn);
+        System.out.println("Min distance to jupiter: " + minDistanceJupiter);
+        System.out.println("Min distance to saturn: " + minDistanceSaturn);
 
         closeBW();
         return new Point2D.Double(minDistanceJupiter, minDistanceSaturn);
@@ -139,7 +148,8 @@ public class Simulation {
 
         Map<String, Particle> planets = new HashMap<String, Particle>();
 
-        planets.put("sun", new Particle(0, 3.541021921578323E+05,-6.578268133977889E+05,1.396466697359526E-02,4.212108884730581E-05,1988500E+24,696000*60));
+        //planets.put("sun", new Particle(0, 3.541021921578323E+05,-6.578268133977889E+05,1.396466697359526E-02,4.212108884730581E-05,1988500E+24,696000*60));
+        planets.put("sun", new Particle(0, 0,0,0,0,1988500E+24,696000*60));
         planets.put("earth", new Particle(1,1.443040359985483E+08,-4.566821691926755E+07,8.429276455862507,2.831601955976786E+01,5.97219E+24,6378.137*1400));
         planets.put("jupiter", new Particle(2,1.061950341671551E+08,7.544955348409320E+08,-1.309157032053854E+01,2.424744678419164,1898.13E+24,71492*200));
         planets.put("saturn", new Particle(3,-1.075238877886715E+09,8.538222924091074E+08,-6.527515746018062,-7.590526046562251,5.6834E+26,60268*200));
@@ -208,6 +218,17 @@ public class Simulation {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    private Set<Particle> getAllParticlesCopy() {
+        Set<Particle> particles = new HashSet<>();
+
+        for(Particle p : planets.values()) {
+            particles.add(new Particle(p));
+        }
+        particles.add(voyager);
+
+        return particles;
     }
 
 }
