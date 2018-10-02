@@ -5,7 +5,7 @@ import java.awt.geom.Point2D;
 public class App {
     public static void main(String[] args) {
 
-        new Simulation(100, 1100, 15).start("/Users/martin/Documents/ITBA/SimulacionDeSistemas/out");
+        new Simulation(100, 1100000, 15000).start("/Users/segundofarina/TP/TP-SS/out/SolarSystem");
 /*
         double minDistance = Double.POSITIVE_INFINITY;
         int minL = 0;

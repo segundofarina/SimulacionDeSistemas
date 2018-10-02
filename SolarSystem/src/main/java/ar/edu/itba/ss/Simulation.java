@@ -58,8 +58,10 @@ public class Simulation {
         int iter = 0;
 
         while(!done && iter < 1000000) {
+            if(iter%1000==0){
+                appendToFile(bw,generateFileString(planets.values(),voyager));
+            }
 
-            appendToFile(bw,generateFileString(planets.values(),voyager));
             // Update planets position
             //beemanCalculator.update(planetsParticles);
 
