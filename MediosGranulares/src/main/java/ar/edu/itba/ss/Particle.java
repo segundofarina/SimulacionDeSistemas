@@ -1,45 +1,76 @@
 package ar.edu.itba.ss;
 
-import java.util.Objects;
+import java.util.Optional;
 
 public class Particle {
-    private int id;
-    private double xPosition;
-    private double yPosition;
-    private double xSpeed;
-    private double ySpeed;
-    private double radius;
-    private double mass;
+    private final int id;
+    private final double radius;
+    private final double mass;
 
+    private final Vector previousAcc;
+
+    private final Vector position;
+    private final Vector speed;
+
+    private Optional<Vector> acceleration;
+
+    private Optional<Vector> nextPosition;
+    private Optional<Vector> nextSpeedPredicted;
+
+    private Optional<Vector> nextAcceleration;
+
+    private Optional<Vector> nextSpeedCorrected;
+
+
+
+
+    private Particle(Particle p, Vector position, Vector speed, Vector previousAcc){
+        this.id=p.id;
+        this.mass=p.mass;
+        this.radius=p.radius;
+
+        this.previousAcc=previousAcc;
+        this.speed=speed;
+        this.position=position;
+
+        this.nextPosition = Optional.empty();
+        this.nextSpeedPredicted = Optional.empty();
+        this.nextSpeedCorrected = Optional.empty();
+        this.acceleration = Optional.empty();
+        this.nextAcceleration = Optional.empty();
+    }
     public Particle(int id, double xPosition, double yPosition, double xSpeed, double ySpeed, double radius, double mass) {
         this.id = id;
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
         this.radius = radius;
         this.mass = mass;
+
+        this.previousAcc = Vector.of(0,0);
+        this.position = Vector.of(xPosition,yPosition);
+        this.speed =  Vector.of(xSpeed,ySpeed);
+        this.nextPosition = Optional.empty();
+        this.nextSpeedPredicted = Optional.empty();
+        this.nextSpeedCorrected = Optional.empty();
+        this.acceleration = Optional.empty();
+        this.nextAcceleration = Optional.empty();
+
+    }
+
+
+
+    public static Particle of(Particle p, Vector position, Vector speed, Vector previousAcc){
+        return new Particle(p,position,speed,previousAcc);
     }
 
     public int getId() {
         return id;
     }
 
-
-    public double getxPosition() {
-        return xPosition;
+    public Vector getPosition() {
+        return position;
     }
 
-    public double getyPosition() {
-        return yPosition;
-    }
-
-    public double getxSpeed() {
-        return xSpeed;
-    }
-
-    public double getySpeed() {
-        return ySpeed;
+    public Vector getSpeed() {
+        return speed;
     }
 
     public double getRadius() {
@@ -50,24 +81,65 @@ public class Particle {
         return mass;
     }
 
-    public void setxPosition(double xPosition) {
-        this.xPosition = xPosition;
+    public Vector getPreviousAcc() {
+        return previousAcc;
     }
 
-    public void setyPosition(double yPosition) {
-        this.yPosition = yPosition;
+    public Vector getAcceleration() {
+        return acceleration.orElseThrow(IllegalStateException::new);
     }
 
-    public void setxSpeed(double xSpeed) {
-        this.xSpeed = xSpeed;
+    public Vector getNextAcceleration() {
+        return nextAcceleration.orElseThrow(IllegalStateException::new);
     }
 
-    public void setySpeed(double ySpeed) {
-        this.ySpeed = ySpeed;
+    public Vector getNextPosition() {
+        return nextPosition.orElseThrow(IllegalStateException::new);
+    }
+
+    public Vector getNextSpeedPredicted() {
+        return nextSpeedPredicted.orElseThrow(IllegalStateException::new);
+    }
+    public Vector getNextSpeedCorrected() {
+        return nextSpeedCorrected.orElseThrow(IllegalStateException::new);
+    }
+
+
+
+    public void setNextPosition(Vector nextPosition){
+        if(this.nextPosition.isPresent()){
+            throw new IllegalStateException();
+        }else{
+            this.nextPosition = Optional.of(nextPosition);
+        }
+    }
+
+    public void setNextSpeedCorrected(Vector nextVelocity){
+        if(this.nextSpeedCorrected.isPresent()){
+            throw new IllegalStateException();
+        }else{
+            this.nextSpeedCorrected = Optional.of(nextVelocity);
+        }
+    }
+
+    public void setNextSpeedPredicted(Vector nextVelocity){
+        if(this.nextSpeedPredicted.isPresent()){
+            throw new IllegalStateException();
+        }else{
+            this.nextSpeedPredicted = Optional.of(nextVelocity);
+        }
+    }
+
+    public void setNextAcceleration(Vector nextAcceleration){
+        if(this.nextAcceleration.isPresent()){
+            throw new IllegalStateException();
+        }else{
+            this.nextAcceleration = Optional.of(nextAcceleration);
+        }
     }
 
     public boolean overlaps(Particle other) {
-        double distance = distanceTo(other);
+        double distance = this.position.distance(other.position);
 
         if(distance < radius + other.radius) {
             return true;
@@ -76,9 +148,15 @@ public class Particle {
         return false;
     }
 
-    public double distanceTo(Particle other) {
-        return Math.sqrt( Math.pow( other.getxPosition() - xPosition ,2) + Math.pow( other.getyPosition() - yPosition ,2) );
+    public void setAcceleration(Vector acceleration){
+        if(this.acceleration.isPresent()){
+            throw new IllegalStateException();
+        }else{
+            this.acceleration = Optional.of(acceleration);
+        }
     }
+
+
 
     @Override
     public boolean equals(Object o) {
@@ -90,21 +168,15 @@ public class Particle {
 
     @Override
     public int hashCode() {
-        return Objects.hash(xPosition, yPosition, xSpeed, ySpeed, radius, mass);
+        int result;
+        long temp;
+        result = getId();
+        temp = Double.doubleToLongBits(getRadius());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(getMass());
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + getPosition().hashCode();
+        result = 31 * result + getSpeed().hashCode();
+        return result;
     }
-
-    @Override
-    public String toString() {
-
-        return "Particle{" +
-                "id=" + id +
-                ", xPosition=" + xPosition +
-                ", yPosition=" + yPosition +
-                ", xSpeed=" + xSpeed +
-                ", ySpeed=" + ySpeed +
-                ", radius=" + radius +
-                ", mass=" + mass +
-                '}';
-    }
-
 }

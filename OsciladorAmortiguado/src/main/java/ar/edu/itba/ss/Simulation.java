@@ -30,7 +30,7 @@ public class Simulation {
 
         // C constant??
         double C = 1;
-        double v = -C * gama / (2 * mass);
+        double v = - C * gama / (2 * mass);
 
         particle = new Particle(0, initialPosition, 0, v,0,mass);
     }
