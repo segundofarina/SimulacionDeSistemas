@@ -45,19 +45,23 @@ public class Silo {
     }
 
     public void start(String outPath,double finalTime){
-        Printer printer = new Printer(outPath, L, W);
+        Printer printer = new Printer(outPath, L, W, D);
         Integrator integrator = new Beeman(new ForceCalculator(L, W, D), new NeighbourCalculator(L,W,0,maxRadius), dt,particles);
 
         int iterations = 0;
         while(time < finalTime && iterations < 100000) {
-            if(iterations % 100 == 0) {
-                printer.appendToFile(particles);
-                System.out.println("Time: " + time + "\t iterations: " + iterations);
-            }
+
             this.particles = integrator.integrate(particles);
 
             this.particles = removeFallenParticles();
 
+
+            if(iterations % 100 == 0) {
+                printer.appendToFile(particles);
+                System.out.println("Time: " + time + "\t iterations: " + iterations);
+            }
+
+            clearFnofParticle();
             time += dt;
             iterations++;
         }
@@ -93,11 +97,11 @@ public class Silo {
 
         while(!done) {
             x = rand.nextDouble() * (W - 2 * radius) + radius;
-            y = rand.nextDouble() * (L/10 - 2 * radius) + radius + L * 9.0/10;
+            y = rand.nextDouble() * (L/8 - 2 * radius) + radius + L * 7.0/8;
 
             p = new Particle(oldParticle.getId(), x, y, 0, 0, radius, mass);
 
-            done = !isOverlapingOtherParticle(p, newParticles);
+            done = !isOverlapingOtherParticle(p, this.particles);
         }
 
         newParticles.add(p);
@@ -122,5 +126,11 @@ public class Silo {
             }
         }
         return newParticles;
+    }
+
+    private void clearFnofParticle() {
+        for(Particle p : particles) {
+            p.clearFn();
+        }
     }
 }

@@ -88,9 +88,9 @@ public class Beeman implements Integrator {
 
     private void calculateNextAcceleration(Set<Particle> allParticles) {
 
-        neighbours = Engine.bruteForce(allParticles, 0,Particle::getNextPosition);
+        //neighbours = Engine.bruteForce(allParticles, 0,Particle::getNextPosition);
 
-        //neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
+        neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
         for (Particle p : allParticles) {
             Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getNextPosition,Particle:: getNextSpeedPredicted)
                     .dividedBy(p.getMass());
@@ -122,7 +122,10 @@ public class Beeman implements Integrator {
         Set<Particle> updatedParticles = new HashSet<>();
 
         for (Particle p : allParticles) {
-            updatedParticles.add(Particle.of(p, p.getNextPosition(), p.getNextSpeedCorrected(), p.getAcceleration()));
+            Particle newP =Particle.of(p, p.getNextPosition(), p.getNextSpeedCorrected(), p.getAcceleration());
+            newP.setTotalFn(p.getTotalFn());
+            updatedParticles.add(newP);
+
         }
         return updatedParticles;
     }

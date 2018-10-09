@@ -21,6 +21,8 @@ public class Particle {
 
     private Optional<Vector> nextSpeedCorrected;
 
+    private double totalFn;
+
 
 
 
@@ -38,6 +40,7 @@ public class Particle {
         this.nextSpeedCorrected = Optional.empty();
         this.acceleration = Optional.empty();
         this.nextAcceleration = Optional.empty();
+        this.totalFn = 0;
     }
     public Particle(int id, double xPosition, double yPosition, double xSpeed, double ySpeed, double radius, double mass) {
         this.id = id;
@@ -156,6 +159,19 @@ public class Particle {
         }
     }
 
+    public double getTotalFn() {
+        return totalFn;
+    }
+
+    public void setTotalFn(double totalFn) {
+        if (this.totalFn == 0) {
+            this.totalFn = totalFn;
+        }
+    }
+
+    public void clearFn() {
+        this.totalFn = 0;
+    }
 
     @Override
     public boolean equals(Object o) {

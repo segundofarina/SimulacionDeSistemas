@@ -7,7 +7,7 @@ public class ForceCalculator {
     private static double g = 9.8; // m/seg
     private static double Kn = Math.pow(10, 5); // N/m
     private static double Kt = 2 * Kn; // N/m
-    private static double Mu = 0.3;
+    private static double Mu = 0.1;
     private static double Gama = 100; // Kg/s
 
     private double L, W, D;
@@ -21,19 +21,31 @@ public class ForceCalculator {
 
     public Vector calculate(Particle p, Set<Particle> neighbours, Function<Particle,Vector> position, Function<Particle,Vector> speed) {
         Vector force = Vector.of(0,- p.getMass() * g);
+        double overlapping,derivate;
+
+        double totalFn = 0;
 
         for(Particle other: neighbours) {
             if(!p.equals(other)) {
-                double fn = getFn(overlaping(p, other, position), derivateOverlap(p, other, position, speed));
-                double ft = getFt(fn, vrel(p, other, speed, position));
+                overlapping= overlaping(p, other, position);
+                derivate = derivateOverlap(p, other, position, speed);
+                if(overlapping>0){
+                    double fn = getFn(overlapping, derivate);
+                    double ft = getFt(fn, vrel(p, other, speed, position));
 
-                Vector en = position.apply(other).subtract(position.apply(p))
-                        .dividedBy(position.apply(other).subtract(position.apply(p)).abs());
+                    totalFn += fn;
 
-                force = force.add(Vector.of(fn * en.x - ft * en.y,fn * en.y + ft * en.x));
+                    Vector en = position.apply(other).subtract(position.apply(p))
+                            .dividedBy(position.apply(other).subtract(position.apply(p)).abs());
+
+                    force = force.add(Vector.of(fn * en.x - ft * en.y,fn * en.y + ft * en.x));
+                }
+
             }
-        }
 
+
+        }
+        p.setTotalFn(totalFn);
 
         force = force.add(getWallForces(p,position,speed));
 

@@ -34,6 +34,6 @@ public class Cell {
     }
 
     public void clearParticles() {
-        this.particles = new HashSet<>();
+        particles.clear();
     }
 }

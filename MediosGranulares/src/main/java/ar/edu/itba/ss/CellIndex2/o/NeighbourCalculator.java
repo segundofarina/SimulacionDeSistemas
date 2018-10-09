@@ -11,12 +11,14 @@ public class NeighbourCalculator {
     private Cell[][] grid;
     private int gridWidth;
     private int gridHeight;
+    private Set<Particle> outOfBounds;
 
     public NeighbourCalculator(double height, double width, double interactionRadius, double maxRadius) {
         this.cellWidth = 2 * maxRadius + interactionRadius;
 
         this.gridWidth = (int) Math.ceil(width / cellWidth);
         this.gridHeight = (int) Math.ceil(height / cellWidth);
+        this.outOfBounds = new HashSet<>();
 
         grid = new Cell[gridWidth][gridHeight];
         initializeGrid();
@@ -41,23 +43,12 @@ public class NeighbourCalculator {
             for(int j = 0; j < gridHeight; j++) {
                 Set<Particle> cellNeighbours = getNearMolecules(grid[i][j]);
                 for(Particle p : grid[i][j].getParticles()) {
-                    if(neighbours.containsKey(p)) {
-                        neighbours.get(p).addAll(cellNeighbours);
-                    } else {
-                        neighbours.put(p, cellNeighbours);
-                    }
-
-                    for(Particle other: cellNeighbours) {
-                        if(neighbours.containsKey(other)) {
-                            neighbours.get(other).add(p);
-                        } else {
-                            Set<Particle> aux = new HashSet<>();
-                            aux.add(p);
-                            neighbours.put(other, aux);
-                        }
-                    }
+                    neighbours.put(p, cellNeighbours);
                 }
             }
+        }
+        for(Particle particle : outOfBounds){
+            neighbours.put(particle,Collections.EMPTY_SET);
         }
 
         return neighbours;
@@ -68,34 +59,66 @@ public class NeighbourCalculator {
             int x = (int)(postiion.apply(p).getX() / cellWidth);
             int y = (int)(postiion.apply(p).getY() / cellWidth);
 
-            grid[x][y].addParticle(p);
+            if(x>=0 && x< gridWidth && y >=0 && y< gridHeight){
+                grid[x][y].addParticle(p);
+            }else{
+                outOfBounds.add(p);
+            }
+
         }
     }
 
     private Set<Particle> getNearMolecules(Cell field){
-        Set<Particle> nearMolecules = new HashSet<>();
-        nearMolecules.addAll(field.getParticles());
+        Set<Particle> nearParticles = new HashSet<>();
+        int x= field.getX();
+        int y = field.getY();
 
-        if(field.getX() + 1 < gridWidth) {
-            nearMolecules.addAll(grid[field.getX()+1][field.getY()].getParticles());
+        addParticles(nearParticles,x-1,y-1);
+        addParticles(nearParticles,x+0,y-1);
+        addParticles(nearParticles,x+1,y-1);
+
+        addParticles(nearParticles,x-1,y+0);
+        addParticles(nearParticles,x+0,y+0);
+        addParticles(nearParticles,x+1,y+0);
+
+        addParticles(nearParticles,x-1,y+1);
+        addParticles(nearParticles,x+0,y+1);
+        addParticles(nearParticles,x+1,y+1);
+
+
+
+
+//        if(field.getX() + 1 < gridWidth) {
+//            nearMolecules.addAll(grid[field.getX()+1][field.getY()].getParticles());
+//        }
+//
+//        if(field.getY() + 1 < gridHeight) {
+//            nearMolecules.addAll(grid[field.getX()][field.getY()+1].getParticles());
+//        }
+//
+//        if(field.getX() + 1 < gridWidth && field.getY() + 1 < gridHeight) {
+//            nearMolecules.addAll(grid[field.getX()+1][field.getY()+1].getParticles());
+//        }
+//
+//        if(field.getX() + 1 < gridWidth && field.getY() - 1 >= 0) {
+//            nearMolecules.addAll(grid[field.getX()+1][field.getY()-1].getParticles());
+//        }
+//
+//        if(field.getX() + 1 < gridWidth && field.getY() - 1 >= 0) {
+//            nearMolecules.addAll(grid[field.getX()+1][field.getY()-1].getParticles());
+//        }
+
+        return nearParticles;
+    }
+
+    public void addParticles(Set<Particle> nearParticles,int x , int y){
+        if(x>=0 && x< gridWidth && y >=0 && y< gridHeight){
+            nearParticles.addAll(grid[x][y].getParticles());
         }
-
-        if(field.getY() + 1 < gridWidth) {
-            nearMolecules.addAll(grid[field.getX()][field.getY()+1].getParticles());
-        }
-
-        if(field.getX() + 1 < gridWidth && field.getY() + 1 < gridHeight) {
-            nearMolecules.addAll(grid[field.getX()+1][field.getY()+1].getParticles());
-        }
-
-        if(field.getX() + 1 < gridWidth && field.getY() - 1 >= 0) {
-            nearMolecules.addAll(grid[field.getX()+1][field.getY()-1].getParticles());
-        }
-
-        return nearMolecules;
     }
 
     private void clearGrid() {
+        outOfBounds.clear();
         for(int i = 0; i < gridWidth; i++) {
             for(int j = 0; j < gridHeight; j++) {
                 grid[i][j].clearParticles();
