@@ -52,6 +52,10 @@ public class Vector {
         return x * other.x + y * other.y;
     }
 
+    public double projectedOn(Vector other) {
+        return Vector.of(x, y).dot(other.versor());
+    }
+
     public Vector tangent() {
         return Vector.of(-y, x);
     }
