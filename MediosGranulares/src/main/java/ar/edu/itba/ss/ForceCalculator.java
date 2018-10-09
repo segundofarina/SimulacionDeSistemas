@@ -7,7 +7,7 @@ public class ForceCalculator {
     private static double g = 9.8; // m/seg
     private static double Kn = Math.pow(10, 5); // N/m
     private static double Kt = 2 * Kn; // N/m
-    private static double Mu = 0.3;
+    private static double Mu = 0.1;
     private static double Gama = 100; // Kg/s
 
     private double L, W, D;
@@ -135,7 +135,7 @@ public class ForceCalculator {
     private Vector horizontalWall(Particle p, Function<Particle, Vector> position, Function<Particle, Vector> speed){
         double dervOver = 0, overlaping = 0, enx = 0, eny = 0, fn, ft;
 
-        boolean shouldCrashBottom = position.apply(p).x < (W/2 - D/2) || position.apply(p).x > W - (W/2 - D/2);
+        boolean shouldCrashBottom = (position.apply(p).x < (W/2 - D/2) || position.apply(p).x > W - (W/2 - D/2)) && position.apply(p).y > 0;
 
         if(shouldCrashBottom && position.apply(p).y - p.getRadius() < 0) {
             overlaping = p.getRadius() - position.apply(p).y;
