@@ -1,6 +1,10 @@
-package ar.edu.itba.ss;
+package ar.edu.itba.ss.Integration;
 
 import ar.edu.itba.ss.CellIndex.Engine;
+import ar.edu.itba.ss.CellIndex2.o.NeighbourCalculator;
+import ar.edu.itba.ss.ForceCalculator;
+import ar.edu.itba.ss.Particle;
+import ar.edu.itba.ss.Vector;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -10,11 +14,12 @@ public class Beeman implements Integrator {
 
     private ForceCalculator forceCalculator;
     private double dt;
+    private NeighbourCalculator neighbourCalculator;
 
-
-    public Beeman(ForceCalculator forceCalculator, double dt) {
+    public Beeman(ForceCalculator forceCalculator, NeighbourCalculator neighbourCalculator, double dt) {
         this.forceCalculator = forceCalculator;
         this.dt = dt;
+        this.neighbourCalculator =neighbourCalculator;
     }
 
 
@@ -35,10 +40,10 @@ public class Beeman implements Integrator {
     }
 
     private void calculateAcceleration(Set<Particle> allParticles) {
-        Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0,Particle::getPosition);
-
+       // Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0, Particle::getPosition);
+        Map<Particle, Set<Particle>> neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getPosition);
         for (Particle p : allParticles) {
-            Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getPosition,Particle::getSpeed)
+            Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getPosition, Particle::getSpeed)
                     .dividedBy(p.getMass());
             p.setAcceleration(acceleration);
         }
@@ -51,12 +56,8 @@ public class Beeman implements Integrator {
             Vector ac = p.getAcceleration();
             Vector prAc = p.getPreviousAcc();
 
-            double nextPx = pos.x + sp.x * dt + 2.0 / 3.0 * ac.x * dt * dt - 1.0 / 6.0 * prAc.x * dt * dt;
-            double nextPy = pos.y + sp.y * dt + 2.0 / 3.0 * ac.y * dt * dt - 1.0 / 6.0 * prAc.y * dt * dt;
-            if(p.getId()==10) {
-                System.out.println("Acceleration :" + ac);
-                System.out.println("Next position :" + nextPx + " , " + nextPy);
-            }
+            double nextPx = pos.getX() + sp.getX() * dt + 2.0 / 3.0 * ac.getX() * dt * dt - 1.0 / 6.0 * prAc.getX() * dt * dt;
+            double nextPy = pos.getY() + sp.getY() * dt + 2.0 / 3.0 * ac.getY() * dt * dt - 1.0 / 6.0 * prAc.getY() * dt * dt;
 
             p.setNextPosition(Vector.of(nextPx, nextPy));
         }
@@ -68,8 +69,8 @@ public class Beeman implements Integrator {
             Vector ac = p.getAcceleration();
             Vector prAc = p.getPreviousAcc();
 
-            double nextVx = sp.x + 3.0 / 2.0 * ac.x * dt - 1.0 / 2.0 * prAc.x * dt;
-            double nextVy = sp.y + 3.0 / 2.0 * ac.y * dt - 1.0 / 2.0 * prAc.y * dt;
+            double nextVx = sp.getX() + 3.0 / 2.0 * ac.getX() * dt - 1.0 / 2.0 * prAc.getX() * dt;
+            double nextVy = sp.getY() + 3.0 / 2.0 * ac.getY() * dt - 1.0 / 2.0 * prAc.getY() * dt;
 
 
             p.setNextSpeedPredicted(Vector.of(nextVx, nextVy));
@@ -79,9 +80,11 @@ public class Beeman implements Integrator {
 
     private void calculateNextAcceleration(Set<Particle> allParticles) {
 
-        Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0,Particle::getNextPosition);
+        //Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0,Particle::getNextPosition);
+
+        Map<Particle, Set<Particle>> neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
         for (Particle p : allParticles) {
-            Vector acceleration = forceCalculator.calculate(p, neighbours.get(p),Particle::getNextPosition,Particle::getNextSpeedPredicted)
+            Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getNextPosition,Particle:: getNextSpeedPredicted)
                     .dividedBy(p.getMass());
             p.setNextAcceleration(acceleration);
         }
@@ -97,8 +100,8 @@ public class Beeman implements Integrator {
             Vector prAc = p.getPreviousAcc();
             Vector neAc = p.getNextAcceleration();
 
-            double nextVx = sp.x + 1.0 / 3.0 * neAc.x * dt + 5.0 / 6.0 * ac.x * dt - 1.0 / 6.0 * prAc.x * dt;
-            double nextVy = sp.y + 1.0 / 3.0 * neAc.y * dt + 5.0 / 6.0 * ac.y * dt - 1.0 / 6.0 * prAc.y * dt;
+            double nextVx = sp.getX() + 1.0 / 3.0 * neAc.getX() * dt + 5.0 / 6.0 * ac.getX() * dt - 1.0 / 6.0 * prAc.getX() * dt;
+            double nextVy = sp.getY() + 1.0 / 3.0 * neAc.getY() * dt + 5.0 / 6.0 * ac.getY() * dt - 1.0 / 6.0 * prAc.getY() * dt;
 
 
             p.setNextSpeedCorrected(Vector.of(nextVx, nextVy));

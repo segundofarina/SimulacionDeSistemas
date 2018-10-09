@@ -48,6 +48,10 @@ public class Vector {
         return Math.hypot(x, y);
     }
 
+    public double dot(Vector other) {
+        return x * other.x + y * other.y;
+    }
+
     public Vector tangent() {
         return Vector.of(-y, x);
     }

@@ -1,7 +1,6 @@
-package ar.edu.itba.ss;
+package ar.edu.itba.ss.Integration;
 
-
-import java.awt.*;
+import ar.edu.itba.ss.Particle;
 import java.util.Set;
 
 public interface Integrator {

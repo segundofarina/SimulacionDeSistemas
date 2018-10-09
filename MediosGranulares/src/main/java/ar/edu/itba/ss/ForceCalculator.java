@@ -24,22 +24,20 @@ public class ForceCalculator {
 
         for(Particle other: neighbours) {
             if(!p.equals(other)) {
-                double fn = getFn(overlaping(p, other,position),derivateOverlap(p,other,position,speed));
+                double fn = getFn(overlaping(p, other, position), derivateOverlap(p, other, position, speed));
                 double ft = getFt(fn, vrel(p, other,speed));
 
                 Vector en = position.apply(other).subtract(position.apply(p))
                         .dividedBy(position.apply(other).subtract(position.apply(p)).abs());
 
-                force=force.add(Vector.of(fn * en.x - ft * en.y,fn * en.y + ft * en.x));
+                force = force.add(Vector.of(fn * en.x - ft * en.y,fn * en.y + ft * en.x));
             }
         }
 
 
-        //force=force.add(getWallForces(p,position,speed));
+        force = force.add(getWallForces(p,position,speed));
 
         return force;
-
-
     }
 
 
@@ -58,11 +56,14 @@ public class ForceCalculator {
 
     private double overlaping(Particle i, Particle j, Function<Particle,Vector> position){
         double result = i.getRadius() + j.getRadius() - position.apply(i).subtract(position.apply(j)).abs();
+
+
         return result > 0 ? result  : 0;
     }
 
     private double derivateOverlap(Particle i, Particle j, Function<Particle,Vector> position , Function<Particle,Vector> speed){
-        double result = - sign(position.apply(j).abs() - position.apply(j).abs()) * (speed.apply(j).abs()- speed.apply(i).abs());
+        //double result = - sign(position.apply(j).abs() - position.apply(j).abs()) * (speed.apply(j).abs() - speed.apply(i).abs());
+        double result = - position.apply(j).subtract(position.apply(i)).versor().dot(speed.apply(j).subtract(speed.apply(i)));
         return result > 0 ? result  : 0;
     }
 
@@ -80,71 +81,72 @@ public class ForceCalculator {
 
 
 
-    private double vrel(Particle i, Particle j,Function<Particle,Vector> speed) {
+    private double vrel(Particle i, Particle j, Function<Particle, Vector> speed) {
         return speed.apply(i).abs() - speed.apply(j).abs();
     }
 
 
 
 
-    private Vector getWallForces(Particle p,Function<Particle,Vector> position , Function<Particle,Vector> speed ) {
+    private Vector getWallForces(Particle p, Function<Particle,Vector> position, Function<Particle,Vector> speed) {
 
-        Vector right = rightWall(p, position,speed);
+        Vector right = rightWall(p, position, speed);
 
-        Vector left = leftWall(p,position,speed);
+        Vector left = leftWall(p, position, speed);
 
-        Vector horizontal = horizontalWall(p,position,speed);
+        Vector horizontal = horizontalWall(p, position, speed);
 
         return right.add(left).add(horizontal);
+        //return horizontal;
     }
 
-    private Vector leftWall(Particle p,Function<Particle,Vector> position , Function<Particle,Vector> speed){
-        double overlaping,dervOver, enx, eny,fn,ft;
-        if(position.apply(p).x- p.getRadius() < 0){
+    private Vector leftWall(Particle p, Function<Particle,Vector> position, Function<Particle,Vector> speed){
+        double overlaping = 0, dervOver = 0, enx = 0, eny = 0, fn, ft;
+        if(position.apply(p).x - p.getRadius() < 0){
             overlaping = p.getRadius() - position.apply(p).x;
             dervOver = - speed.apply(p).abs();
             enx = -1;
             eny = 0;
-        }else{
-            dervOver=overlaping=enx=eny=0;
         }
+
+        dervOver = 0;
+
         fn = getFn(overlaping,dervOver);
-        ft = getFt(fn,speed.apply(p).abs());
+        ft = getFt(fn, speed.apply(p).abs());
         return Vector.of(fn * enx - ft * eny, fn * eny + ft * enx);
     }
 
     private Vector rightWall(Particle p, Function<Particle, Vector> position,Function<Particle, Vector> speed) {
-        double dervOver,overlaping, enx, eny,fn,ft;
+        double dervOver = 0, overlaping = 0, enx = 0, eny = 0, fn, ft;
         if(position.apply(p).x + p.getRadius() > W){
             overlaping = position.apply(p).x + p.getRadius() - W;
             dervOver = - speed.apply(p).abs();
             enx = 1;
             eny = 0;
-        }else{
-            dervOver=overlaping=enx=eny=0;
         }
+
+        dervOver = 0;
+
         fn = getFn(overlaping,dervOver);
-        ft = getFt(fn,speed.apply(p).abs());
+        ft = getFt(fn, speed.apply(p).abs());
         return Vector.of(fn * enx - ft * eny, fn * eny + ft * enx);
     }
 
-    private Vector horizontalWall(Particle p, Function<Particle, Vector> position,Function<Particle, Vector> speed){
-        double dervOver,overlaping, enx, eny,fn,ft;
+    private Vector horizontalWall(Particle p, Function<Particle, Vector> position, Function<Particle, Vector> speed){
+        double dervOver = 0, overlaping = 0, enx = 0, eny = 0, fn, ft;
 
-        if(position.apply(p).y - p.getRadius()<0){
-            overlaping = p.getRadius() - position.apply(p).x;
+        if(position.apply(p).y - p.getRadius() < 0){
+            overlaping = p.getRadius() - position.apply(p).y;
             dervOver = - speed.apply(p).abs();
             enx = 0;
             eny = -1;
-        }else{
-            dervOver=overlaping=enx=eny=0;
         }
 
-        fn = getFn(overlaping,dervOver);
-        ft = getFt(fn,speed.apply(p).abs());
+        dervOver = 0;
+
+        fn = getFn(overlaping, dervOver);
+        ft = getFt(fn, speed.apply(p).abs());
         return  Vector.of( fn * enx - ft * eny, fn * eny + ft * enx);
-
     }
-
 
 }

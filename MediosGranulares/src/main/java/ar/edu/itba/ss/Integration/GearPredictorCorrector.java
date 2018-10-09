@@ -1,14 +1,13 @@
-package ar.edu.itba.ss;
+package ar.edu.itba.ss.Integration;
+
+import ar.edu.itba.ss.Particle;
+import ar.edu.itba.ss.Vector;
 
 import java.util.Set;
 
 public class GearPredictorCorrector implements Integrator {
 
-
-
-
-
-    public Vector integrate(double force, double dt,double pos, double vel, double mass) {
+    public Vector integrate(double force, double dt, double pos, double vel, double mass) {
         double r0 = pos;
         double r1 = vel;
         double r2 = force / mass;
