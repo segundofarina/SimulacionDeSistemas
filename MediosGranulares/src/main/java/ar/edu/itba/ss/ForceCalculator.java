@@ -147,7 +147,7 @@ public class ForceCalculator {
     private Vector horizontalWall(Particle p, Function<Particle, Vector> position, Function<Particle, Vector> speed){
         double dervOver = 0, overlaping = 0, enx = 0, eny = 0, fn, ft;
 
-        boolean shouldCrashBottom = position.apply(p).x < (W/2 - D/2) || position.apply(p).x > W - (W/2 - D/2);
+        boolean shouldCrashBottom = (position.apply(p).x < (W/2 - D/2) || position.apply(p).x > W - (W/2 - D/2)) && position.apply(p).y > 0;
 
         if(shouldCrashBottom && position.apply(p).y - p.getRadius() < 0) {
             overlaping = p.getRadius() - position.apply(p).y;

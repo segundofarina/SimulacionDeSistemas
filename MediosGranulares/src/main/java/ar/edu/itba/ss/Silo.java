@@ -16,6 +16,8 @@ public class Silo {
     private static double maxRadius = 0.015; // m
     private static double mass = 0.01; // kg
 
+    private Printer timePrinter;
+
     // mu = 0.7
     // gama = 100 kg/s
 
@@ -40,12 +42,13 @@ public class Silo {
         }
 
         System.out.println(particles.size() + " particles added.");
-
-
     }
 
     public void start(String outPath,double finalTime){
         Printer printer = new Printer(outPath, L, W, D);
+        timePrinter = new Printer(outPath+"_time", 0, 0, 0);
+        Printer energyPrinter = new Printer(outPath+"_energy", 0, 0, 0);
+
         Integrator integrator = new Beeman(new ForceCalculator(L, W, D), new NeighbourCalculator(L,W,0,maxRadius), dt,particles);
 
         int iterations = 0;
@@ -53,7 +56,7 @@ public class Silo {
 
             this.particles = integrator.integrate(particles);
 
-            this.particles = removeFallenParticles();
+            this.particles = removeFallenParticles(time);
 
 
             if(iterations % 100 == 0) {
@@ -61,12 +64,20 @@ public class Silo {
                 System.out.println("Time: " + time + "\t iterations: " + iterations);
             }
 
+            this.particles = integrator.integrate(particles);
+
+            this.particles = removeFallenParticles(time);
+
+            getEnergy(energyPrinter);
+
             clearFnofParticle();
             time += dt;
             iterations++;
         }
 
         printer.close();
+        timePrinter.close();
+        energyPrinter.close();
     }
 
     private boolean addPartilce() {
@@ -95,6 +106,8 @@ public class Silo {
         double x = 0, y = 0;
         Particle p = oldParticle;
 
+
+
         while(!done) {
             x = rand.nextDouble() * (W - 2 * radius) + radius;
             y = rand.nextDouble() * (L/8 - 2 * radius) + radius + L * 7.0/8;
@@ -116,21 +129,36 @@ public class Silo {
         return false;
     }
 
-    private Set<Particle> removeFallenParticles() {
+    private Set<Particle> removeFallenParticles(double time) {
         Set<Particle> newParticles = new HashSet<>();
         for(Particle p : this.particles) {
             if(p.getPosition().getY() > -L/10) {
                 newParticles.add(p);
             } else {
                 addParticle(p, newParticles);
+                timePrinter.appendToFile(time + "\n");
+                timePrinter.flush();
             }
         }
         return newParticles;
     }
 
+
     private void clearFnofParticle() {
-        for(Particle p : particles) {
+        for (Particle p : particles) {
             p.clearFn();
         }
+    }
+
+    private void getEnergy(Printer energyPrinter) {
+        double speed2 = 0;
+        for(Particle p : particles) {
+            speed2 += Math.pow(p.getSpeed().abs(), 2);
+        }
+
+        double energy = 0.5 * mass * speed2;
+
+        energyPrinter.appendToFile(energy + "\n");
+        energyPrinter.flush();
     }
 }

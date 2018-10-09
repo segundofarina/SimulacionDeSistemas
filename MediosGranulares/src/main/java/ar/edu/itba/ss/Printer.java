@@ -15,6 +15,7 @@ public class Printer {
     double W;
     double D;
     public Printer(String outPath,double L, double W,double D) {
+
         this.L = L;
         this.W = W;
         this.D = D;
@@ -96,11 +97,20 @@ public class Printer {
     public void appendToFile(Set<Particle> allParticles){
         appendToFile(generateFileString(allParticles));
     }
-    private void appendToFile( String data) {
+    public void appendToFile( String data) {
         try {
             bw.write(data);
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    public void flush() {
+        try {
+            bw.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }
