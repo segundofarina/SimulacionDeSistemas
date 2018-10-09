@@ -45,7 +45,7 @@ public class Vector {
     }
 
     public double abs() {
-        return Math.hypot(x, y);
+        return Math.sqrt(x * x + y * y );
     }
 
     public double dot(Vector other) {

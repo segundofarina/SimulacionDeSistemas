@@ -47,7 +47,7 @@ public class Silo {
 
     public void start(String outPath,double finalTime){
         Printer printer = new Printer(outPath, L, W);
-        Integrator integrator = new Beeman(new ForceCalculator(L, W, D), new NeighbourCalculator(L,W,0,maxRadius), dt);
+        Integrator integrator = new Beeman(new ForceCalculator(L, W, D), new NeighbourCalculator(L,W,0,maxRadius), dt,particles);
 
         int iterations = 0;
         while(time < finalTime && iterations < 100000) {

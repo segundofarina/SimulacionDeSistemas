@@ -157,13 +157,16 @@ public class Particle {
     }
 
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Particle)) return false;
+
         Particle particle = (Particle) o;
-        return particle.getId() == id;
+
+        if (getId() != particle.getId()) return false;
+        if (Double.compare(particle.getRadius(), getRadius()) != 0) return false;
+        return Double.compare(particle.getMass(), getMass()) == 0;
     }
 
     @Override
@@ -175,8 +178,6 @@ public class Particle {
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(getMass());
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + getPosition().hashCode();
-        result = 31 * result + getSpeed().hashCode();
         return result;
     }
 }

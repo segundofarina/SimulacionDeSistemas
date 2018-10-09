@@ -6,20 +6,28 @@ import ar.edu.itba.ss.ForceCalculator;
 import ar.edu.itba.ss.Particle;
 import ar.edu.itba.ss.Vector;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class Beeman implements Integrator {
 
     private ForceCalculator forceCalculator;
     private double dt;
     private NeighbourCalculator neighbourCalculator;
+    Map<Particle, Set<Particle>> neighbours;
 
-    public Beeman(ForceCalculator forceCalculator, NeighbourCalculator neighbourCalculator, double dt) {
+    public Beeman(ForceCalculator forceCalculator, NeighbourCalculator neighbourCalculator, double dt, Set<Particle> allparticles) {
         this.forceCalculator = forceCalculator;
         this.dt = dt;
         this.neighbourCalculator =neighbourCalculator;
+        initializeNeighbours(allparticles);
+    }
+
+    private void initializeNeighbours(Set<Particle> allparticles) {
+        neighbours = new HashMap<>();
+        for(Particle p : allparticles){
+            neighbours.put(p, Collections.emptySet());
+        }
+
     }
 
 
@@ -41,7 +49,7 @@ public class Beeman implements Integrator {
 
     private void calculateAcceleration(Set<Particle> allParticles) {
        // Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0, Particle::getPosition);
-        Map<Particle, Set<Particle>> neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getPosition);
+        //Map<Particle, Set<Particle>> neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getPosition);
         for (Particle p : allParticles) {
             Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getPosition, Particle::getSpeed)
                     .dividedBy(p.getMass());
@@ -82,7 +90,7 @@ public class Beeman implements Integrator {
 
         //Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0,Particle::getNextPosition);
 
-        Map<Particle, Set<Particle>> neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
+        neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
         for (Particle p : allParticles) {
             Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getNextPosition,Particle:: getNextSpeedPredicted)
                     .dividedBy(p.getMass());
