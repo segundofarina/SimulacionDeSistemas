@@ -82,12 +82,13 @@ public class Simulation {
         Printer animationPrinter = new Printer("./out/RoomEvacuation/animation_",L,W,door);
         Integrator integrator = new Beeman(granularForce,socialForce,drivingForce,dt,pedestrians);
         animationPrinter.appendToAnimation(pedestrians);
-        while(evacuated< pedestriansAmount && time <1){
+        while(evacuated< pedestriansAmount && time <10){
             this.pedestrians = integrator.integrate(pedestrians);
 
             if(time>nextTime){
                 animationPrinter.appendToAnimation(pedestrians);
                 nextTime+=jump;
+                System.out.println("Time: "+time);
             }
 
             time+=dt;

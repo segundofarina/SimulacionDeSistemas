@@ -25,7 +25,7 @@ public class GranularForce {
         for(Particle other: neighbours) {
             if(!p.equals(other)) {
                 overlapping= overlaping(p, other, position);
-                if(overlapping>0){
+                if(overlapping<0){
                     double fn = getFn(overlapping);
                     double ft = getFt(overlapping, vrel(p, other, speed, position));
 
