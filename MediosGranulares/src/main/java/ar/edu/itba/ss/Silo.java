@@ -49,7 +49,8 @@ public class Silo {
         timePrinter = new Printer(outPath+"_time", 0, 0, 0);
         Printer energyPrinter = new Printer(outPath+"_energy", 0, 0, 0);
 
-        Integrator integrator = new Beeman(new ForceCalculator(L, W, D), new NeighbourCalculator(L,W,0,maxRadius), dt,particles);
+        Integrator integrator = new Beeman(new ForceCalculator(L, W, D)
+                , new NeighbourCalculator(L,W,0,maxRadius), dt,particles);
 
         int iterations = 0;
         while(time < finalTime && iterations < 100000) {
@@ -64,20 +65,13 @@ public class Silo {
                 System.out.println("Time: " + time + "\t iterations: " + iterations);
             }
 
-            this.particles = integrator.integrate(particles);
-
-            this.particles = removeFallenParticles(time);
 
             getEnergy(energyPrinter);
 
-            clearFnofParticle();
             time += dt;
             iterations++;
         }
 
-        printer.close();
-        timePrinter.close();
-        energyPrinter.close();
     }
 
     private boolean addPartilce() {

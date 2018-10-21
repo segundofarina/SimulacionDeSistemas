@@ -87,27 +87,6 @@ public class NeighbourCalculator {
 
 
 
-
-//        if(field.getX() + 1 < gridWidth) {
-//            nearMolecules.addAll(grid[field.getX()+1][field.getY()].getParticles());
-//        }
-//
-//        if(field.getY() + 1 < gridHeight) {
-//            nearMolecules.addAll(grid[field.getX()][field.getY()+1].getParticles());
-//        }
-//
-//        if(field.getX() + 1 < gridWidth && field.getY() + 1 < gridHeight) {
-//            nearMolecules.addAll(grid[field.getX()+1][field.getY()+1].getParticles());
-//        }
-//
-//        if(field.getX() + 1 < gridWidth && field.getY() - 1 >= 0) {
-//            nearMolecules.addAll(grid[field.getX()+1][field.getY()-1].getParticles());
-//        }
-//
-//        if(field.getX() + 1 < gridWidth && field.getY() - 1 >= 0) {
-//            nearMolecules.addAll(grid[field.getX()+1][field.getY()-1].getParticles());
-//        }
-
         return nearParticles;
     }
 

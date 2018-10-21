@@ -14,6 +14,7 @@
         <module>DampedOscilator</module>
         <module>MediosGranulares</module>
         <module>Voyager</module>
+        <module>RoomEvacuation</module>
     </modules>
     <packaging>pom</packaging>
   <name>TP</name>

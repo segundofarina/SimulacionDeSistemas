@@ -1,23 +1,26 @@
 package ar.edu.itba.ss.Integration;
 
-import ar.edu.itba.ss.CellIndex2.o.NeighbourCalculator;
-import ar.edu.itba.ss.ForceCalculator;
-import ar.edu.itba.ss.Particle;
+
+import ar.edu.itba.ss.*;
 import ar.edu.itba.ss.Vector;
 
 import java.util.*;
 
 public class Beeman implements Integrator {
 
-    private ForceCalculator forceCalculator;
-    private double dt;
-    private NeighbourCalculator neighbourCalculator;
+    private final SocialForce socialForce;
+    private final GranularForce granularForce;
+    private final DrivingForce drivingForce;
+    private final double dt;
+   // private NeighbourCalculator neighbourCalculator;
     private Map<Particle, Set<Particle>> neighbours;
 
-    public Beeman(ForceCalculator forceCalculator, NeighbourCalculator neighbourCalculator, double dt, Set<Particle> allparticles) {
-        this.forceCalculator = forceCalculator;
+    public Beeman( GranularForce granularForce,SocialForce socialForce, DrivingForce drivingForce, double dt, Set<Particle> allparticles) {
+        this.granularForce = granularForce;
+        this.socialForce   = socialForce;
+        this.drivingForce  = drivingForce;
         this.dt = dt;
-        this.neighbourCalculator =neighbourCalculator;
+        //this.neighbourCalculator =neighbourCalculator;
         initializeNeighbours(allparticles);
     }
 
@@ -49,9 +52,13 @@ public class Beeman implements Integrator {
     private void calculateAcceleration(Set<Particle> allParticles) {
        // Map<Particle, Set<Particle>> neighbours = Engine.bruteForce(allParticles, 0, Particle::getPosition);
         //Map<Particle, Set<Particle>> neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getPosition);
+        //TODO calculate neighbours
         for (Particle p : allParticles) {
-            Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getPosition, Particle::getSpeed)
-                    .dividedBy(p.getMass());
+            Vector force = granularForce.calculate(p, /*neighbours.get(p)*/allParticles, Particle::getPosition, Particle::getSpeed)
+                    .add(socialForce.calculate(p, /*neighbours.get(p)*/allParticles, Particle::getPosition, Particle::getSpeed))
+                    .add(drivingForce.calculate(p,Particle::getPosition, Particle::getSpeed));
+
+            Vector acceleration = force.dividedBy(p.getMass());
             p.setAcceleration(acceleration);
         }
     }
@@ -89,10 +96,13 @@ public class Beeman implements Integrator {
 
         //neighbours = Engine.bruteForce(allParticles, 0,Particle::getNextPosition);
 
-        neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
+        //neighbours = neighbourCalculator.getNeighbours(allParticles,Particle::getNextPosition);
+        //TODO calculate neighbours
         for (Particle p : allParticles) {
-            Vector acceleration = forceCalculator.calculate(p, neighbours.get(p), Particle::getNextPosition,Particle:: getNextSpeedPredicted)
-                    .dividedBy(p.getMass());
+            Vector force = granularForce.calculate(p, /*neighbours.get(p)*/allParticles, Particle::getNextPosition, Particle::getNextSpeedPredicted)
+                    .add(socialForce.calculate(p, /*neighbours.get(p)*/allParticles, Particle::getNextPosition, Particle::getNextSpeedPredicted))
+                    .add(drivingForce.calculate(p,Particle::getNextPosition, Particle::getNextSpeedPredicted));
+            Vector acceleration = force.dividedBy(p.getMass());
             p.setNextAcceleration(acceleration);
         }
 
