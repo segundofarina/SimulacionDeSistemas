@@ -49,9 +49,9 @@ public class Printer {
     }
 
     private int addBorders(Set<Particle> limits) {
-        double delta= 1/100.0;
+        double delta= 1/10.0;
         int count=1;
-        double radius = 0.01;
+        double radius = 0.15;
         for(double i =-radius ; i< L+radius;i+=delta){
             limits.add(new Particle(-count++,Vector.of(-radius,i),Vector.ZERO,radius,0,0,Vector.ZERO));
             limits.add(new Particle(-count++,Vector.of(W+radius,i),Vector.ZERO,radius,0,0,Vector.ZERO));

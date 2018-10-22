@@ -72,7 +72,7 @@ public class Simulation {
         double FPS = 60;
         double jump = 1/FPS;
         double nextTime = 0;
-        double evacuated = 0;
+        //double evacuated = 0;
         initializePedestrians(pedestriansAmount);
 
 
@@ -82,7 +82,7 @@ public class Simulation {
         Printer animationPrinter = new Printer("./out/RoomEvacuation/animation_",L,W,door);
         Integrator integrator = new Beeman(granularForce,socialForce,drivingForce,dt,pedestrians);
         animationPrinter.appendToAnimation(pedestrians);
-        while(evacuated< pedestriansAmount && time <10){
+        while(pedestrians.size()>0 && time <10){
             this.pedestrians = integrator.integrate(pedestrians);
 
             if(time>nextTime){
@@ -90,10 +90,10 @@ public class Simulation {
                 nextTime+=jump;
                 System.out.println("Time: "+time);
             }
-
+            removeEvacuatedPedestrians(pedestrians);
             time+=dt;
         }
-
+        animationPrinter.close();
 
     }
 
@@ -131,5 +131,19 @@ public class Simulation {
             }
         }
         return false;
+    }
+
+    private int removeEvacuatedPedestrians(Set<Particle> pedestrians){
+        int evacuted =0;
+        Set<Particle> tobeRemoved= new HashSet<>();
+        for (Particle p : pedestrians){
+            if(p.getPosition().x > W/2 - door/2 && p.getPosition().x < (W/2 + door/2) && p.getPosition().y<=0){
+                tobeRemoved.add(p);
+                evacuted++;
+                System.out.println("Removed "+p);
+            }
+        }
+        pedestrians.removeAll(tobeRemoved);
+        return evacuted;
     }
 }

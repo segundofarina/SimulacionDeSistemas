@@ -6,6 +6,6 @@ public class RoomEvacuation {
 
     public static void main(String args[]){
         Simulation s = new Simulation();
-        s.start(200);
+        s.start(300);
     }
 }

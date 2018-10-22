@@ -6,6 +6,7 @@ import ar.edu.itba.ss.Vector;
 
 import java.util.*;
 
+@SuppressWarnings("Duplicates")
 public class Beeman implements Integrator {
 
     private final SocialForce socialForce;
@@ -63,6 +64,7 @@ public class Beeman implements Integrator {
         }
     }
 
+
     private void calculateNextPosition(Set<Particle> allParticles) {
         for (Particle p : allParticles) {
             Vector pos = p.getPosition();
@@ -76,6 +78,7 @@ public class Beeman implements Integrator {
             p.setNextPosition(Vector.of(nextPx, nextPy));
         }
     }
+
 
     private void calculateNextSpeedPredicted(Set<Particle> allParticles) {
         for (Particle p : allParticles) {
@@ -108,6 +111,7 @@ public class Beeman implements Integrator {
 
 
     }
+
 
 
     private void calculateNextSpeedCorrected(Set<Particle> allParticles) {
