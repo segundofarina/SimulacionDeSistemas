@@ -6,12 +6,10 @@ import java.util.function.Function;
 public class GranularForce {
     private final double kn;
     private final double kt;
-    private final double g;
 
-    public GranularForce(double kn, double kt, double g){
+    public GranularForce(double kn, double kt){
         this.kn = kn;
         this.kt = kt;
-        this.g  = g;
     }
 
 
@@ -20,7 +18,6 @@ public class GranularForce {
         Vector force = Vector.ZERO;
         double overlapping;
 
-        double totalFn = 0;
 
         for(Particle other: neighbours) {
             if(!p.equals(other)) {
@@ -29,24 +26,21 @@ public class GranularForce {
                     double fn = getFn(overlapping);
                     double ft = getFt(overlapping, vrel(p, other, speed, position));
 
-                    totalFn += fn;
 
-                    Vector en = position.apply(other).subtract(position.apply(p))
-                            .dividedBy(position.apply(other).subtract(position.apply(p)).abs());
+                    Vector en = position.apply(other).subtract(position.apply(p)).versor();
+                    Vector et = en.tangent();
 
-                    force = force.add(Vector.of(fn * en.x - ft * en.y,fn * en.y + ft * en.x));
+                    force = force.add(en.multiplyBy(fn).add(et.multiplyBy(ft)));
                 }
 
             }
 
 
         }
-        p.setTotalFn(totalFn);
 
 
         //TODO add wall forces
         //force = force.add(getWallForces(p,position,speed));
-
         return force;
     }
 
@@ -64,7 +58,7 @@ public class GranularForce {
         double result =  position.apply(i).subtract(position.apply(j)).abs() - ( i.getRadius() + j.getRadius());
 
 
-        return result > 0 ? result  : 0;
+        return result < 0 ? result  : 0;
     }
 
     private double vrel(Particle i, Particle j, Function<Particle, Vector> speed, Function<Particle, Vector> position) {

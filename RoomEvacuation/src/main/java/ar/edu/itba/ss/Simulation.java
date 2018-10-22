@@ -12,7 +12,6 @@ public class Simulation {
     //Granular Force parameters
     private final double kn;
     private final double kt;
-    private final double g;
 
     //Driving force parameters
     private final double tau;
@@ -43,7 +42,6 @@ public class Simulation {
     public Simulation(){
         this.kn  = 1.2*Math.pow(10,5);
         this.kt  =  2*kn;
-        this.g   = 9.8;
 
         this.tau = 0.5;
 
@@ -60,9 +58,9 @@ public class Simulation {
         this.minSpeed     = 0.8;
 
         //TODO check mass parameter
-        this.mass         = 70;
+        this.mass         = 80;
 
-        this.dt = 0.1 * Math.sqrt(mass/kn);
+        this.dt = 0.1 * Math.sqrt(mass/kn) *0.01;
 
         System.out.println("Dt is: "+dt);
     }
@@ -72,12 +70,11 @@ public class Simulation {
         double FPS = 60;
         double jump = 1/FPS;
         double nextTime = 0;
-        //double evacuated = 0;
         initializePedestrians(pedestriansAmount);
 
 
         SocialForce socialForce = new SocialForce(A,B);
-        GranularForce granularForce = new GranularForce(kn,kt,g);
+        GranularForce granularForce = new GranularForce(kn,kt);
         DrivingForce drivingForce = new DrivingForce(tau);
         Printer animationPrinter = new Printer("./out/RoomEvacuation/animation_",L,W,door);
         Integrator integrator = new Beeman(granularForce,socialForce,drivingForce,dt,pedestrians);
@@ -140,7 +137,6 @@ public class Simulation {
             if(p.getPosition().x > W/2 - door/2 && p.getPosition().x < (W/2 + door/2) && p.getPosition().y<=0){
                 tobeRemoved.add(p);
                 evacuted++;
-                System.out.println("Removed "+p);
             }
         }
         pedestrians.removeAll(tobeRemoved);

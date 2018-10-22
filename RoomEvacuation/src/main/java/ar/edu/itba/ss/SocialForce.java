@@ -1,15 +1,12 @@
 package ar.edu.itba.ss;
 
-
 import java.util.Set;
 import java.util.function.Function;
 
 public class SocialForce {
 
-
     private final double A;
     private final double B;
-
 
     public SocialForce(double A, double B){
         this.A = A;
@@ -20,12 +17,10 @@ public class SocialForce {
         Vector force = Vector.ZERO;
         double overlapping;
 
-
         for(Particle other: neighbours) {
             if(!p.equals(other)) {
                 overlapping= overlapping(p, other, position);
                 double fn = getFn(overlapping);
-
 
                 Vector en = position.apply(other).subtract(position.apply(p))
                         .dividedBy(position.apply(other).subtract(position.apply(p)).abs());
@@ -33,11 +28,7 @@ public class SocialForce {
                 force = force.add(Vector.of(fn * en.x ,fn * en.y ));
 
             }
-
-
         }
-
-
         return force;
     }
 
@@ -47,11 +38,7 @@ public class SocialForce {
 
     private double overlapping(Particle i, Particle j, Function<Particle,Vector> position){
         //TODO check overlapping signs
-
         double result =  position.apply(i).subtract(position.apply(j)).abs() - ( i.getRadius() + j.getRadius());
-
-
-        return result > 0 ? result  : 0;
+        return result ;
     }
-
 }
