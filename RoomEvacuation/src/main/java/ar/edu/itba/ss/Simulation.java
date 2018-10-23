@@ -54,13 +54,12 @@ public class Simulation {
 
         this.minRadiusPed = 0.25;
         this.maxRadiusPed = 0.29;
-        this.maxSpeed     = 6;
-        this.minSpeed     = 0.8;
+        this.maxSpeed     = 0.6;
+        this.minSpeed     = 0.6;
 
-        //TODO check mass parameter
         this.mass         = 80;
 
-        this.dt = 0.1 * Math.sqrt(mass/kn) *0.01;
+        this.dt = 0.01 * Math.sqrt(mass/kn);
 
         System.out.println("Dt is: "+dt);
     }
@@ -76,10 +75,11 @@ public class Simulation {
         SocialForce socialForce = new SocialForce(A,B);
         GranularForce granularForce = new GranularForce(kn,kt);
         DrivingForce drivingForce = new DrivingForce(tau);
+        InteractionForce interactionForce = new InteractionForce(A,B,kn,kt, W, door);
         Printer animationPrinter = new Printer("./out/RoomEvacuation/animation_",L,W,door);
-        Integrator integrator = new Beeman(granularForce,socialForce,drivingForce,dt,pedestrians);
+        Integrator integrator = new Beeman(granularForce,socialForce,interactionForce,drivingForce,dt,pedestrians);
         animationPrinter.appendToAnimation(pedestrians);
-        while(pedestrians.size()>0 && time <10){
+        while(pedestrians.size()>0){
             this.pedestrians = integrator.integrate(pedestrians);
 
             if(time>nextTime){
